@@ -12,11 +12,11 @@
 import * as THREE from 'three';
 
 export function createLighting() {
-    // ---- 环境光：提升至0.5，防止暗面全黑 ----
-    const ambient = new THREE.AmbientLight('#1a1a3a', 0.5);
+    // ---- 环境光：暗面细节可见 ----
+    const ambient = new THREE.AmbientLight('#2a2a4a', 0.65);
 
     // ---- 半球光：天空冷色 + 地面暖色，模拟散射环境照明 ----
-    const hemiLight = new THREE.HemisphereLight('#4466aa', '#332211', 0.3);
+    const hemiLight = new THREE.HemisphereLight('#5588cc', '#443322', 0.38);
     hemiLight.name = 'HemisphereLight';
 
     // ---- 太阳点光源：线性衰减 + 高强度 ----

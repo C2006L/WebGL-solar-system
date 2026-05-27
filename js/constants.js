@@ -22,7 +22,7 @@ const SCALE = 7; // 1 AU = 7 单位
 
 export const BODIES = {
     sun: {
-        name: 'Sun', size: 3.5, orbitRadius: 0, orbitSpeed: 0,
+        name: 'Sun', size: 5.0, orbitRadius: 0, orbitSpeed: 0,
         orbitalIncl: 0, axialTilt: 7.25,
         selfRotationSpeed: 0.15, type: 'star',
         realAU: 0, realPeriod: 0, realRadius: 696340,

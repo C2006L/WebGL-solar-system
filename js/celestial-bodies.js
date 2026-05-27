@@ -182,7 +182,11 @@ function createPlanet(bodyKey, mapsFn, materialOpts = {}, bumpScaleVal = 0.02) {
     matArgs.roughnessMap = maps.roughnessMap;
   }
 
-  if (cfg.emissiveHex) {
+  if (maps.emissiveMap) {
+    matArgs.emissiveMap = maps.emissiveMap;
+    matArgs.emissive = new THREE.Color(1.0, 0.9, 0.7);
+    matArgs.emissiveIntensity = 1.2;
+  } else if (cfg.emissiveHex) {
     matArgs.emissive = new THREE.Color(cfg.emissiveHex);
     matArgs.emissiveIntensity = cfg.emissiveIntensity;
   }

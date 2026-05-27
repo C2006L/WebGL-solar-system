@@ -414,7 +414,9 @@ export function createEarthMaps(_size) {
   map.anisotropy = 8;
   const bumpMap = loader.load(TEX + "earth_normal_2048.jpg");
   bumpMap.colorSpace = THREE.LinearSRGBColorSpace;
-  return { map, bumpMap };
+  const emissiveMap = loader.load(TEX + "2k_earth_nightmap.jpg");
+  emissiveMap.colorSpace = THREE.SRGBColorSpace;
+  return { map, bumpMap, emissiveMap };
 }
 
 export function createEarthCloudMap() {

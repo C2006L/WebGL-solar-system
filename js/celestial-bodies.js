@@ -106,7 +106,7 @@ function createSaturnRing(planetSize) {
   geo.rotateX(-Math.PI / 2);
   const loader = new THREE.TextureLoader();
   const tex = loader.load(
-    "https://www.solarsystemscope.com/textures/download/2k_saturn_ring_alpha.png",
+    "./textures/2k_saturn_ring_alpha.png",
   );
   tex.colorSpace = THREE.SRGBColorSpace;
   const ring = new THREE.Mesh(

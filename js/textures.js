@@ -30,13 +30,11 @@ function canvasToLinearTexture(canvas) {
 }
 
 // ---- 太阳纹理（v7：真实太阳表面贴图） ----
-const SSS_TEX = "https://www.solarsystemscope.com/textures/download/";
-const THREE_TEX =
-  "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/";
+const TEX = "./textures/";
 
 export function createSunMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_sun.jpg");
+  const map = loader.load(TEX + "2k_sun.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -45,7 +43,7 @@ export function createSunMaps(_size) {
 // ---- 月球纹理（v7：真实月球贴图） ----
 export function createMoonMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_moon.jpg");
+  const map = loader.load(TEX + "2k_moon.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -53,7 +51,7 @@ export function createMoonMaps(_size) {
 
 export function createMarsMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_mars.jpg");
+  const map = loader.load(TEX + "2k_mars.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -371,7 +369,7 @@ export function createCallistoMaps(size = 2048) {
 
 export function createMercuryMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_mercury.jpg");
+  const map = loader.load(TEX + "2k_mercury.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -379,7 +377,7 @@ export function createMercuryMaps(_size) {
 
 export function createJupiterMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_jupiter.jpg");
+  const map = loader.load(TEX + "2k_jupiter.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -387,7 +385,7 @@ export function createJupiterMaps(_size) {
 
 export function createSaturnMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_saturn.jpg");
+  const map = loader.load(TEX + "2k_saturn.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -395,7 +393,7 @@ export function createSaturnMaps(_size) {
 
 export function createUranusMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_uranus.jpg");
+  const map = loader.load(TEX + "2k_uranus.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -403,7 +401,7 @@ export function createUranusMaps(_size) {
 
 export function createNeptuneMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_neptune.jpg");
+  const map = loader.load(TEX + "2k_neptune.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -411,24 +409,24 @@ export function createNeptuneMaps(_size) {
 
 export function createEarthMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_earth_daymap.jpg");
+  const map = loader.load(TEX + "2k_earth_daymap.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
-  const bumpMap = loader.load(THREE_TEX + "earth_normal_2048.jpg");
+  const bumpMap = loader.load(TEX + "earth_normal_2048.jpg");
   bumpMap.colorSpace = THREE.LinearSRGBColorSpace;
   return { map, bumpMap };
 }
 
 export function createEarthCloudMap() {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_earth_clouds.jpg");
+  const map = loader.load(TEX + "2k_earth_clouds.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   return map;
 }
 
 export function createVenusMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(SSS_TEX + "2k_venus_surface.jpg");
+  const map = loader.load(TEX + "2k_venus_surface.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };

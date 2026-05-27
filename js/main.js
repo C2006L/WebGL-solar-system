@@ -96,8 +96,7 @@ window.addEventListener("resize", () => handleResize(camera, renderer));
 hideLoading();
 loop.start();
 
-console.log('Solar System v11 Ready — real textures: Sun+Earth+Moon + roughnessMap + clouds');
-);
+console.log("Solar System v13 Ready — local textures, no CORS issues");
 console.log(
   "  ↑/↓: speed | Space: pause | 1-4: camera | R: reset | H: help | O: orbits",
 );

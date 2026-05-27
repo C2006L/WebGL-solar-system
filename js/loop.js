@@ -172,6 +172,11 @@ export function createAnimationLoop(ctx) {
       bodyRefs.earthAtmosphere.material.uniforms.uSunDirection.value.copy(_v1);
     }
 
+    // ---- 地球云层缓慢独立旋转 ----
+    if (bodyRefs.earthClouds) {
+      bodyRefs.earthClouds.rotation.y += 0.0003 * dt;
+    }
+
     controls.update();
     renderer.render(scene, camera);
   }

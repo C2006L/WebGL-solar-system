@@ -1,9 +1,9 @@
 // ============================================================
-// constants.js — v9：科学精确优化（IAU轨道 + 太阳比例 + 木星卫星）
+// constants.js — v10：修复水星遮挡 + 月球距离 + 真实地球贴图
 // ============================================================
-// 天体尺寸按 SCALE 视觉压缩；轨道周期和倾角参考 IAU 2022 数据
-// 太阳:地球直径比 ≈ 6.0:0.65=9.23:1 (真实109:1的8.5%, 受SCALE制约取视觉最优)
-// 月球:地球距离比 ≈ 3.5:0.65=5.38 Earth radii (真实60.3, 受SCALE制约)
+// Sun=3.0 < Mercury orbit=3.87 → 水星可见
+// Moon orbitRadius=1.8 → 月球紧贴地球 (视觉合理)
+// Earth 使用 NASA/Three.js 官方蓝色弹珠贴图
 // ============================================================
 
 export const SIM = {
@@ -19,7 +19,7 @@ const SCALE = 10;
 
 export const BODIES = {
     sun: {
-        name: 'Sun', size: 6.0, orbitRadius: 0, orbitSpeed: 0,
+        name: 'Sun', size: 3.0, orbitRadius: 0, orbitSpeed: 0,
         orbitalIncl: 0, axialTilt: 7.25,
         selfRotationSpeed: 0.15, type: 'star',
         realAU: 0, realPeriod: 0, realRadius: 696340,
@@ -55,7 +55,7 @@ export const BODIES = {
         description: 'Only known planet with life. 71% ocean. Atmosphere: N₂ 78%, O₂ 21%.',
     },
     moon: {
-        name: 'Moon', size: 0.18, orbitRadius: 3.5,
+        name: 'Moon', size: 0.18, orbitRadius: 1.8,
         orbitSpeed: 2 * Math.PI / (27.3),
         orbitalIncl: 5.14, axialTilt: 6.68,
         selfRotationSpeed: 2 * Math.PI / (27.3),
@@ -108,7 +108,6 @@ export const BODIES = {
         color: '#3355cc', emissiveHex: '#081040', emissiveIntensity: 0.22,
         description: 'Windiest planet (2,100 km/h). Discovered mathematically (1846).',
     },
-    // ---- 木星伽利略卫星 (NASA JPL HORIZONS 2025) ----
     io: {
         name: 'Io', size: 0.08, orbitRadius: 3.5,
         orbitSpeed: 2 * Math.PI / (1.77),

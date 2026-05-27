@@ -1,5 +1,5 @@
 // ============================================================
-// celestial-bodies.js — v8：emissive PBR + 木星伽利略卫星
+// celestial-bodies.js — v10：真实地球贴图 + 云层 + 修复轨道
 // ============================================================
 
 import * as THREE from "three";
@@ -7,6 +7,7 @@ import { BODIES } from "./constants.js";
 import {
   createSunMaps,
   createEarthMaps,
+  createEarthCloudMap,
   createMoonMaps,
   createMarsMaps,
   createVenusMaps,
@@ -53,8 +54,8 @@ function createSun() {
     new THREE.MeshBasicMaterial({ map: maps.map }),
   );
   mesh.name = cfg.name;
-  const innerGlow = sunCorona(cfg, 1.06, "#ff8800", 5.0, 0.42);
-  const outerGlow = sunCorona(cfg, 1.14, "#ffcc44", 6.8, 0.22);
+  const innerGlow = sunCorona(cfg, 1.08, "#ff8800", 5.0, 0.45);
+  const outerGlow = sunCorona(cfg, 1.18, "#ffcc44", 6.8, 0.25);
   return { mesh, innerGlow, outerGlow };
 }
 
@@ -343,9 +344,33 @@ export function createCelestialBodies(scene) {
   refs.earth = earth.mesh;
   refs.earthOrbitRadius = BODIES.earth.orbitRadius;
 
+  if (earth.mesh.material.specularMap) {
+    earth.mesh.material.specular = new THREE.Color("#333333");
+    earth.mesh.material.shininess = 15;
+    earth.mesh.material.needsUpdate = true;
+  }
+
   const atmosphere = createEarthAtmosphere(BODIES.earth.size);
   earth.bodyGroup.add(atmosphere);
   refs.earthAtmosphere = atmosphere;
+
+  const cloudGeo = new THREE.SphereGeometry(
+    BODIES.earth.size * 1.008,
+    128,
+    128,
+  );
+  const cloudMat = new THREE.MeshStandardMaterial({
+    map: createEarthCloudMap(),
+    transparent: true,
+    opacity: 0.45,
+    depthWrite: false,
+    roughness: 1.0,
+    metalness: 0.0,
+  });
+  const cloudMesh = new THREE.Mesh(cloudGeo, cloudMat);
+  cloudMesh.name = "Earth_Clouds";
+  earth.mesh.add(cloudMesh);
+  refs.earthClouds = cloudMesh;
 
   const earthMoon = createEarthMoon(earth.bodyGroup);
   refs.moonOrbitGroup = earthMoon.orbitGroup;

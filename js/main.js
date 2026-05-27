@@ -97,7 +97,7 @@ hideLoading();
 loop.start();
 
 console.log(
-  "Solar System v9 Ready — 8 planets + 4 Jupiter moons + asteroid belt",
+  "Solar System v10 Ready — 8 planets + 4 Jupiter moons + real Earth texture + clouds",
 );
 console.log(
   "  ↑/↓: speed | Space: pause | 1-4: camera | R: reset | H: help | O: orbits",

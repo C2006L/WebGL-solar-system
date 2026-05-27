@@ -1,10 +1,10 @@
 // ============================================================
-// main.js — 入口（v15：星体聚焦 + 标签导航系统）
+// main.js — 入口（v16：精简按钮 + 开灯功能）
 // ============================================================
 
 import * as THREE from "three";
 import { initCamera, switchToPreset, handleResize, focusOnBody, clearFocus } from "./camera.js";
-import { createLighting } from "./lighting.js";
+import { createLighting, toggleFillLight } from "./lighting.js";
 import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
 import { createStarField } from "./starfield.js";
@@ -15,6 +15,7 @@ import {
 import {
   hideLoading,
   createViewPresetButtons,
+  createLightToggleButton,
   toggleHelp,
   createLabelNavigation,
   highlightLabel,
@@ -43,10 +44,12 @@ document.body.appendChild(renderer.domElement);
 const { camera, controls } = initCamera(renderer.domElement);
 
 // ---- 2. 灯光 ----
-const { ambient, hemiLight, sunLight } = createLighting();
+const { ambient, hemiLight, sunLight, fillLight, boostAmbient } = createLighting();
 scene.add(ambient);
 scene.add(hemiLight);
 scene.add(sunLight);
+scene.add(fillLight);
+scene.add(boostAmbient);
 
 // ---- 3. 星空 ----
 scene.add(createStarField());
@@ -77,30 +80,32 @@ function onFocusBody(bodyKey) {
 
 // ---- 8. 视角预设包装 ----
 function applyPreset(presetKey) {
-  const earthPos =
-    presetKey === "followEarth" && bodyRefs.earthGroup
-      ? bodyRefs.earthGroup.getWorldPosition(new THREE.Vector3())
-      : null;
-  switchToPreset(camera, controls, presetKey, earthPos);
+  switchToPreset(camera, controls, presetKey, null);
   clearFocus();
   clearLabelHighlight();
 }
 
-// ---- 9. UI ----
+// ---- 9. 开灯回调 ----
+function onLightToggle(isOn) {
+  toggleFillLight(fillLight, boostAmbient, isOn);
+}
+
+// ---- 10. UI ----
 createViewPresetButtons(applyPreset);
+createLightToggleButton(onLightToggle);
 toggleHelp();
 createLabelNavigation(bodyRefs, onFocusBody);
 
-// ---- 10. 交互 ----
+// ---- 11. 交互 ----
 initInteraction(camera, renderer, bodyRefs, controls, onFocusBody);
 
-// ---- 11. 用户手动操控时取消聚焦 ----
+// ---- 12. 用户手动操控时取消聚焦 ----
 controls.addEventListener('start', () => {
   clearFocus();
   clearLabelHighlight();
 });
 
-// ---- 12. 启动动画循环 ----
+// ---- 13. 启动动画循环 ----
 const clock = new THREE.Clock();
 const ctx = {
   scene,
@@ -120,7 +125,7 @@ window.addEventListener("resize", () => handleResize(camera, renderer));
 hideLoading();
 loop.start();
 
-console.log('Solar System v15 Ready');
+console.log('Solar System v16 Ready');
 
 } catch (err) {
   console.error('Solar System init error:', err);

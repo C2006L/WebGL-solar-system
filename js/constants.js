@@ -271,13 +271,6 @@ export const BODIES = {
 export const CAMERA_PRESETS = {
   free: { name: "Free Orbit", position: [0, 30, 50], target: [0, 0, 0] },
   topDown: { name: "Top Down", position: [0, 45, 0.5], target: [0, 0, 0] },
-  followEarth: {
-    name: "Follow Earth",
-    position: [2, 1.5, 4],
-    target: [0, 0, 0],
-    isDynamic: true,
-  },
-  sunView: { name: "Sun View", position: [2, 1.5, 6], target: [0, 0, 0] },
 };
 
 export const SCENE = {

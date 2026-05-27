@@ -223,6 +223,39 @@ canvas {
     color: #fff;
 }
 
+/* ---- 开灯按钮 ---- */
+#light-toggle {
+    position: fixed;
+    top: 120px;
+    left: 16px;
+    z-index: 30;
+}
+
+#light-toggle button {
+    background: rgba(8, 8, 24, 0.7);
+    color: #aaa;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 7px 14px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 12px;
+    letter-spacing: 1px;
+    transition: all 0.25s;
+    backdrop-filter: blur(8px);
+    font-family: inherit;
+}
+
+#light-toggle button:hover {
+    background: rgba(30, 30, 60, 0.8);
+    color: #fff;
+}
+
+#light-toggle button.active {
+    background: rgba(255, 200, 50, 0.2);
+    color: #ffcc44;
+    border-color: rgba(255, 200, 50, 0.5);
+}
+
 /* ---- 右侧星体标签导航 ---- */
 #body-labels {
     position: fixed;

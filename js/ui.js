@@ -17,7 +17,7 @@ export function updateFPS(fps) {
 export function highlightPresetButton(presetKey) {
     const container = document.getElementById('view-presets');
     if (!container) return;
-    const indexMap = { free: 0, topDown: 1, followEarth: 2, sunView: 3 };
+    const indexMap = { free: 0, topDown: 1 };
     const idx = indexMap[presetKey];
     const buttons = container.querySelectorAll('button');
     buttons.forEach((b, i) => b.classList.toggle('active', i === idx));
@@ -71,7 +71,7 @@ export function toggleHelp() {
         <div><b>↑ / ↓</b> — Speed up / slow down</div>
         <div><b>Space</b> — Pause / Resume</div>
         <div><b>R</b> — Reset simulation</div>
-        <div><b>1-4</b> — Camera presets (Free/Top/Earth/Sun)</div>
+        <div><b>1-2</b> — Camera presets (Free/Top)</div>
         <div><b>O</b> — Toggle orbit lines</div>
         <div><b>H</b> — Toggle this help</div>
         <div><b>Esc</b> — Cancel focus</div>
@@ -100,8 +100,6 @@ export function createViewPresetButtons(onPresetClick) {
     const presets = [
         { key: 'free', label: '1 Free' },
         { key: 'topDown', label: '2 Top' },
-        { key: 'followEarth', label: '3 Earth' },
-        { key: 'sunView', label: '4 Sun' },
     ];
     presets.forEach((p, i) => {
         const btn = document.createElement('button');
@@ -114,6 +112,22 @@ export function createViewPresetButtons(onPresetClick) {
         if (i === 0) btn.classList.add('active');
         container.appendChild(btn);
     });
+    document.body.appendChild(container);
+}
+
+export function createLightToggleButton(onToggle) {
+    const container = document.createElement('div');
+    container.id = 'light-toggle';
+    const btn = document.createElement('button');
+    let isOn = false;
+    btn.textContent = '💡 开灯';
+    btn.addEventListener('click', () => {
+        isOn = !isOn;
+        btn.textContent = isOn ? '💡 关灯' : '💡 开灯';
+        btn.classList.toggle('active', isOn);
+        onToggle(isOn);
+    });
+    container.appendChild(btn);
     document.body.appendChild(container);
 }
 

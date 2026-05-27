@@ -31,8 +31,6 @@ const BODY_UPDATE_MAP = {
 const PRESET_KEY_MAP = {
   1: "free",
   2: "topDown",
-  3: "followEarth",
-  4: "sunView",
 };
 
 export function createAnimationLoop(ctx) {
@@ -158,12 +156,6 @@ export function createAnimationLoop(ctx) {
     // ---- 小行星带缓慢旋转 ----
     if (asteroidBelt) {
       asteroidBelt.rotation.y += 0.015 * dt;
-    }
-
-    // ---- Follow Earth ----
-    if (currentPreset === "followEarth" && bodyRefs.earthGroup) {
-      bodyRefs.earthGroup.getWorldPosition(_v1);
-      controls.target.lerp(_v1, 0.08);
     }
 
     // ---- 大气着色器动态更新 ----

@@ -1,10 +1,13 @@
 // ============================================================
-// lighting.js — 增强光照系统（v4：开灯功能 + 暗面补光）
+// lighting.js — 增强光照系统（v5：平滑明暗过渡 + 物理散射模拟）
 // ============================================================
 // 设计思路：
-//   - 默认状态：太阳点光源 + 低环境光 → 行星暗面很暗
-//   - "开灯"状态：增加补光方向光 + 提升环境光 → 暗面可见但仍暗于正面
-//   - 补光从斜上方照射，模拟散射环境光，不破坏主光源方向感
+//   - 默认：太阳点光源 + 低环境光 → 行星暗面很暗
+//   - "开灯"：多方向弱补光 + 半球光增强 + 环境光提升
+//     → 模拟大气散射/多次弹射光 → 暗面可见但暗于正面
+//     → 明暗过渡区柔和自然，无生硬切割线
+//   - 三盏弱补光从不同方位照射，消除单一方向光的硬阴影
+//   - 半球光增强提供天-地渐变，模拟真实大气散射
 // ============================================================
 
 import * as THREE from "three";
@@ -22,23 +25,50 @@ export function createLighting() {
   sunLight.shadow.mapSize.height = 4096;
   sunLight.shadow.camera.near = 0.15;
   sunLight.shadow.camera.far = 180;
-  sunLight.shadow.bias = -0.0003;
-  sunLight.shadow.normalBias = 0.02;
+  sunLight.shadow.bias = -0.0004;
+  sunLight.shadow.normalBias = 0.04;
+  sunLight.shadow.radius = 4;
   sunLight.name = "SunLight";
 
-  const fillLight = new THREE.DirectionalLight("#8899cc", 0.6);
-  fillLight.position.set(15, 20, 10);
-  fillLight.visible = false;
-  fillLight.name = "FillLight";
+  const fillA = new THREE.DirectionalLight("#7788bb", 0.35);
+  fillA.position.set(20, 25, 15);
+  fillA.visible = false;
+  fillA.name = "FillA";
 
-  const boostAmbient = new THREE.AmbientLight("#3a3a5a", 0.35);
+  const fillB = new THREE.DirectionalLight("#8899aa", 0.25);
+  fillB.position.set(-18, 10, -12);
+  fillB.visible = false;
+  fillB.name = "FillB";
+
+  const fillC = new THREE.DirectionalLight("#6677aa", 0.2);
+  fillC.position.set(5, -15, 20);
+  fillC.visible = false;
+  fillC.name = "FillC";
+
+  const boostHemi = new THREE.HemisphereLight("#6699cc", "#554433", 0.3);
+  boostHemi.visible = false;
+  boostHemi.name = "BoostHemi";
+
+  const boostAmbient = new THREE.AmbientLight("#2a2a4a", 0.2);
   boostAmbient.visible = false;
   boostAmbient.name = "BoostAmbient";
 
-  return { ambient, hemiLight, sunLight, fillLight, boostAmbient };
+  return {
+    ambient,
+    hemiLight,
+    sunLight,
+    fillA,
+    fillB,
+    fillC,
+    boostHemi,
+    boostAmbient,
+  };
 }
 
-export function toggleFillLight(fillLight, boostAmbient, isOn) {
-  fillLight.visible = isOn;
-  boostAmbient.visible = isOn;
+export function toggleFillLight(lights, isOn) {
+  lights.fillA.visible = isOn;
+  lights.fillB.visible = isOn;
+  lights.fillC.visible = isOn;
+  lights.boostHemi.visible = isOn;
+  lights.boostAmbient.visible = isOn;
 }

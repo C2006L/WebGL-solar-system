@@ -1,5 +1,5 @@
 // ============================================================
-// main.js — 入口（v16：精简按钮 + 开灯功能）
+// main.js — 入口（v17：平滑明暗过渡优化）
 // ============================================================
 
 import * as THREE from "three";
@@ -44,12 +44,15 @@ document.body.appendChild(renderer.domElement);
 const { camera, controls } = initCamera(renderer.domElement);
 
 // ---- 2. 灯光 ----
-const { ambient, hemiLight, sunLight, fillLight, boostAmbient } = createLighting();
-scene.add(ambient);
-scene.add(hemiLight);
-scene.add(sunLight);
-scene.add(fillLight);
-scene.add(boostAmbient);
+const lights = createLighting();
+scene.add(lights.ambient);
+scene.add(lights.hemiLight);
+scene.add(lights.sunLight);
+scene.add(lights.fillA);
+scene.add(lights.fillB);
+scene.add(lights.fillC);
+scene.add(lights.boostHemi);
+scene.add(lights.boostAmbient);
 
 // ---- 3. 星空 ----
 scene.add(createStarField());
@@ -87,7 +90,7 @@ function applyPreset(presetKey) {
 
 // ---- 9. 开灯回调 ----
 function onLightToggle(isOn) {
-  toggleFillLight(fillLight, boostAmbient, isOn);
+  toggleFillLight(lights, isOn);
 }
 
 // ---- 10. UI ----
@@ -125,7 +128,7 @@ window.addEventListener("resize", () => handleResize(camera, renderer));
 hideLoading();
 loop.start();
 
-console.log('Solar System v16 Ready');
+console.log('Solar System v17 Ready');
 
 } catch (err) {
   console.error('Solar System init error:', err);

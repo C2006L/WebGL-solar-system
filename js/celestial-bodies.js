@@ -2,39 +2,39 @@
 // celestial-bodies.js — 天体模型创建（v3：全 8 行星 + 倾角 + 环）
 // ============================================================
 
-import * as THREE from 'three';
-import { BODIES } from './constants.js';
+import * as THREE from "three";
+import { BODIES } from "./constants.js";
 import {
-    createSunMaps,
-    createEarthMaps,
-    createMoonMaps,
-    createMarsMaps,
-    createVenusMaps,
-    createMercuryMaps,
-    createJupiterMaps,
-    createSaturnMaps,
-    createUranusMaps,
-    createNeptuneMaps,
-} from './textures.js';
-import { createEarthAtmosphere } from './atmosphere.js';
+  createSunMaps,
+  createEarthMaps,
+  createMoonMaps,
+  createMarsMaps,
+  createVenusMaps,
+  createMercuryMaps,
+  createJupiterMaps,
+  createSaturnMaps,
+  createUranusMaps,
+  createNeptuneMaps,
+} from "./textures.js";
+import { createEarthAtmosphere } from "./atmosphere.js";
 
 function degToRad(deg) {
-    return deg * Math.PI / 180;
+  return (deg * Math.PI) / 180;
 }
 
 // ---- 太阳 ----
 function createSun() {
-    const cfg = BODIES.sun;
-    const maps = createSunMaps(2048);
-    const geo = new THREE.SphereGeometry(cfg.size, 128, 128);
-    const mat = new THREE.MeshBasicMaterial({ map: maps.map });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.name = cfg.name;
+  const cfg = BODIES.sun;
+  const maps = createSunMaps(2048);
+  const geo = new THREE.SphereGeometry(cfg.size, 128, 128);
+  const mat = new THREE.MeshBasicMaterial({ map: maps.map });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = cfg.name;
 
-    const innerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.05, 64, 64);
-    const innerGlowMat = new THREE.ShaderMaterial({
-        uniforms: { uColor: { value: new THREE.Color('#ff8800') } },
-        vertexShader: /* glsl */ `
+  const innerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.05, 64, 64);
+  const innerGlowMat = new THREE.ShaderMaterial({
+    uniforms: { uColor: { value: new THREE.Color("#ff8800") } },
+    vertexShader: /* glsl */ `
             varying vec3 vNormal;
             varying vec3 vPosition;
             void main() {
@@ -44,7 +44,7 @@ function createSun() {
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `,
-        fragmentShader: /* glsl */ `
+    fragmentShader: /* glsl */ `
             varying vec3 vNormal;
             varying vec3 vPosition;
             uniform vec3 uColor;
@@ -55,16 +55,16 @@ function createSun() {
                 gl_FragColor = vec4(uColor, alpha);
             }
         `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-    });
-    const innerGlow = new THREE.Mesh(innerGlowGeo, innerGlowMat);
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const innerGlow = new THREE.Mesh(innerGlowGeo, innerGlowMat);
 
-    const outerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.12, 48, 48);
-    const outerGlowMat = new THREE.ShaderMaterial({
-        uniforms: { uColor: { value: new THREE.Color('#ffcc44') } },
-        vertexShader: /* glsl */ `
+  const outerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.12, 48, 48);
+  const outerGlowMat = new THREE.ShaderMaterial({
+    uniforms: { uColor: { value: new THREE.Color("#ffcc44") } },
+    vertexShader: /* glsl */ `
             varying vec3 vNormal;
             varying vec3 vPosition;
             void main() {
@@ -74,7 +74,7 @@ function createSun() {
                 gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
             }
         `,
-        fragmentShader: /* glsl */ `
+    fragmentShader: /* glsl */ `
             varying vec3 vNormal;
             varying vec3 vPosition;
             uniform vec3 uColor;
@@ -85,282 +85,360 @@ function createSun() {
                 gl_FragColor = vec4(uColor, alpha);
             }
         `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-    });
-    const outerGlow = new THREE.Mesh(outerGlowGeo, outerGlowMat);
+    transparent: true,
+    blending: THREE.AdditiveBlending,
+    depthWrite: false,
+  });
+  const outerGlow = new THREE.Mesh(outerGlowGeo, outerGlowMat);
 
-    return { mesh, innerGlow, outerGlow };
+  return { mesh, innerGlow, outerGlow };
 }
 
-// ---- 土星环（v3：Cassini Division + 多层B/A/C环） ----
+// ---- 吉星环（极暗淡，尘埃质） ----
+function createJupiterRing(planetSize) {
+  const innerR = planetSize * 1.28;
+  const outerR = planetSize * 1.55;
+  const geo = new THREE.RingGeometry(innerR, outerR, 128);
+  geo.rotateX(-Math.PI / 2);
+
+  const ringCanvas = document.createElement("canvas");
+  ringCanvas.width = 512;
+  ringCanvas.height = 24;
+  const rctx = ringCanvas.getContext("2d");
+  const g = rctx.createLinearGradient(0, 0, 512, 0);
+  g.addColorStop(0, "rgba(180, 160, 140, 0.05)");
+  g.addColorStop(0.15, "rgba(190, 170, 145, 0.22)");
+  g.addColorStop(0.35, "rgba(200, 180, 155, 0.3)");
+  g.addColorStop(0.55, "rgba(190, 170, 145, 0.2)");
+  g.addColorStop(0.7, "rgba(170, 150, 130, 0.12)");
+  g.addColorStop(1, "rgba(140, 120, 100, 0.02)");
+  rctx.fillStyle = g;
+  rctx.fillRect(0, 0, 512, 24);
+
+  const ringTex = new THREE.Texture(ringCanvas);
+  ringTex.colorSpace = THREE.SRGBColorSpace;
+  ringTex.needsUpdate = true;
+
+  const mat = new THREE.MeshStandardMaterial({
+    map: ringTex,
+    side: THREE.DoubleSide,
+    roughness: 0.85,
+    metalness: 0.01,
+    transparent: true,
+    opacity: 0.55,
+    depthWrite: true,
+  });
+
+  const ring = new THREE.Mesh(geo, mat);
+  ring.renderOrder = 1;
+  ring.name = "Jupiter_Ring";
+  return ring;
+}
+
+// ---- 土星环（v4：降低粗糙度增强光泽 + 透视正确） ----
 function createSaturnRing(planetSize) {
-    const innerR = planetSize * 1.3;
-    const outerR = planetSize * 2.2;
-    const geo = new THREE.RingGeometry(innerR, outerR, 192);
-    geo.rotateX(-Math.PI / 2);
+  const innerR = planetSize * 1.3;
+  const outerR = planetSize * 2.2;
+  const geo = new THREE.RingGeometry(innerR, outerR, 192);
+  geo.rotateX(-Math.PI / 2);
 
-    const ringCanvas = document.createElement('canvas');
-    ringCanvas.width = 1024;
-    ringCanvas.height = 64;
-    const rctx = ringCanvas.getContext('2d');
+  const ringCanvas = document.createElement("canvas");
+  ringCanvas.width = 1024;
+  ringCanvas.height = 64;
+  const rctx = ringCanvas.getContext("2d");
 
-    const ringGrad = rctx.createLinearGradient(0, 0, 1024, 0);
-    // C环（内层淡环）
-    ringGrad.addColorStop(0, 'rgba(160, 145, 120, 0.15)');
-    ringGrad.addColorStop(0.06, 'rgba(190, 170, 140, 0.5)');
-    ringGrad.addColorStop(0.12, 'rgba(160, 145, 120, 0.2)');
-    // B环（最亮最密）
-    ringGrad.addColorStop(0.18, 'rgba(240, 220, 180, 0.75)');
-    ringGrad.addColorStop(0.28, 'rgba(255, 240, 200, 0.95)');
-    ringGrad.addColorStop(0.38, 'rgba(240, 220, 180, 0.88)');
-    ringGrad.addColorStop(0.44, 'rgba(220, 200, 160, 0.7)');
-    // Cassini Division（暗色间隙）
-    ringGrad.addColorStop(0.48, 'rgba(60, 50, 35, 0.3)');
-    ringGrad.addColorStop(0.52, 'rgba(50, 40, 30, 0.25)');
-    ringGrad.addColorStop(0.56, 'rgba(80, 65, 45, 0.35)');
-    // A环（外层中等亮度）
-    ringGrad.addColorStop(0.62, 'rgba(230, 210, 175, 0.75)');
-    ringGrad.addColorStop(0.72, 'rgba(220, 200, 165, 0.7)');
-    ringGrad.addColorStop(0.82, 'rgba(200, 180, 145, 0.55)');
-    ringGrad.addColorStop(0.90, 'rgba(170, 150, 120, 0.3)');
-    ringGrad.addColorStop(1, 'rgba(120, 100, 80, 0.08)');
-    rctx.fillStyle = ringGrad;
-    rctx.fillRect(0, 0, 1024, 64);
+  const ringGrad = rctx.createLinearGradient(0, 0, 1024, 0);
+  // C环（内层淡环）
+  ringGrad.addColorStop(0, "rgba(160, 145, 120, 0.15)");
+  ringGrad.addColorStop(0.06, "rgba(190, 170, 140, 0.5)");
+  ringGrad.addColorStop(0.12, "rgba(160, 145, 120, 0.2)");
+  // B环（最亮最密）
+  ringGrad.addColorStop(0.18, "rgba(240, 220, 180, 0.75)");
+  ringGrad.addColorStop(0.28, "rgba(255, 240, 200, 0.95)");
+  ringGrad.addColorStop(0.38, "rgba(240, 220, 180, 0.88)");
+  ringGrad.addColorStop(0.44, "rgba(220, 200, 160, 0.7)");
+  // Cassini Division（暗色间隙）
+  ringGrad.addColorStop(0.48, "rgba(60, 50, 35, 0.3)");
+  ringGrad.addColorStop(0.52, "rgba(50, 40, 30, 0.25)");
+  ringGrad.addColorStop(0.56, "rgba(80, 65, 45, 0.35)");
+  // A环（外层中等亮度）
+  ringGrad.addColorStop(0.62, "rgba(230, 210, 175, 0.75)");
+  ringGrad.addColorStop(0.72, "rgba(220, 200, 165, 0.7)");
+  ringGrad.addColorStop(0.82, "rgba(200, 180, 145, 0.55)");
+  ringGrad.addColorStop(0.9, "rgba(170, 150, 120, 0.3)");
+  ringGrad.addColorStop(1, "rgba(120, 100, 80, 0.08)");
+  rctx.fillStyle = ringGrad;
+  rctx.fillRect(0, 0, 1024, 64);
 
-    // 环带细节纹理条纹
-    for (let i = 0; i < 200; i++) {
-        const x = Math.random() * 1024;
-        const alpha = 0.03 + Math.random() * 0.08;
-        const bright = Math.random() > 0.5;
-        rctx.fillStyle = bright
-            ? `rgba(255,240,210,${alpha})`
-            : `rgba(150,120,90,${alpha})`;
-        rctx.fillRect(x, 0, 2 + Math.random() * 3, 64);
-    }
+  // 环带细节纹理条纹
+  for (let i = 0; i < 200; i++) {
+    const x = Math.random() * 1024;
+    const alpha = 0.03 + Math.random() * 0.08;
+    const bright = Math.random() > 0.5;
+    rctx.fillStyle = bright
+      ? `rgba(255,240,210,${alpha})`
+      : `rgba(150,120,90,${alpha})`;
+    rctx.fillRect(x, 0, 2 + Math.random() * 3, 64);
+  }
 
-    const ringTex = new THREE.Texture(ringCanvas);
-    ringTex.colorSpace = THREE.SRGBColorSpace;
-    ringTex.wrapS = THREE.RepeatWrapping;
-    ringTex.needsUpdate = true;
+  const ringTex = new THREE.Texture(ringCanvas);
+  ringTex.colorSpace = THREE.SRGBColorSpace;
+  ringTex.wrapS = THREE.RepeatWrapping;
+  ringTex.needsUpdate = true;
 
-    const mat = new THREE.MeshStandardMaterial({
-        map: ringTex,
-        side: THREE.DoubleSide,
-        roughness: 0.7,
-        metalness: 0.08,
-        transparent: true,
-        opacity: 0.88,
-        depthWrite: true,
-    });
+  const mat = new THREE.MeshStandardMaterial({
+    map: ringTex,
+    side: THREE.DoubleSide,
+    roughness: 0.38,
+    metalness: 0.06,
+    transparent: true,
+    opacity: 0.9,
+    depthWrite: true,
+  });
 
-    const ring = new THREE.Mesh(geo, mat);
-    ring.castShadow = true;
-    ring.receiveShadow = true;
-    ring.name = 'Saturn_Ring';
-    return ring;
+  const ring = new THREE.Mesh(geo, mat);
+  ring.renderOrder = 1;
+  ring.castShadow = true;
+  ring.receiveShadow = true;
+  ring.name = "Saturn_Ring";
+  return ring;
 }
 
 // ---- 天王星环（极细，淡色） ----
 function createUranusRing(planetSize) {
-    const innerR = planetSize * 1.3;
-    const outerR = planetSize * 1.45;
-    const geo = new THREE.RingGeometry(innerR, outerR, 64);
-    geo.rotateX(-Math.PI / 2);
+  const innerR = planetSize * 1.3;
+  const outerR = planetSize * 1.45;
+  const geo = new THREE.RingGeometry(innerR, outerR, 64);
+  geo.rotateX(-Math.PI / 2);
 
-    const ringCanvas = document.createElement('canvas');
-    ringCanvas.width = 256;
-    ringCanvas.height = 16;
-    const rctx = ringCanvas.getContext('2d');
-    const g = rctx.createLinearGradient(0, 0, 256, 0);
-    g.addColorStop(0, 'rgba(160, 200, 220, 0.2)');
-    g.addColorStop(0.3, 'rgba(180, 210, 230, 0.5)');
-    g.addColorStop(0.5, 'rgba(200, 220, 235, 0.6)');
-    g.addColorStop(0.7, 'rgba(170, 200, 220, 0.4)');
-    g.addColorStop(1, 'rgba(140, 180, 200, 0.1)');
-    rctx.fillStyle = g;
-    rctx.fillRect(0, 0, 256, 16);
+  const ringCanvas = document.createElement("canvas");
+  ringCanvas.width = 256;
+  ringCanvas.height = 16;
+  const rctx = ringCanvas.getContext("2d");
+  const g = rctx.createLinearGradient(0, 0, 256, 0);
+  g.addColorStop(0, "rgba(160, 200, 220, 0.2)");
+  g.addColorStop(0.3, "rgba(180, 210, 230, 0.5)");
+  g.addColorStop(0.5, "rgba(200, 220, 235, 0.6)");
+  g.addColorStop(0.7, "rgba(170, 200, 220, 0.4)");
+  g.addColorStop(1, "rgba(140, 180, 200, 0.1)");
+  rctx.fillStyle = g;
+  rctx.fillRect(0, 0, 256, 16);
 
-    const ringTex = new THREE.Texture(ringCanvas);
-    ringTex.colorSpace = THREE.SRGBColorSpace;
-    ringTex.needsUpdate = true;
+  const ringTex = new THREE.Texture(ringCanvas);
+  ringTex.colorSpace = THREE.SRGBColorSpace;
+  ringTex.needsUpdate = true;
 
-    const mat = new THREE.MeshStandardMaterial({
-        map: ringTex,
-        side: THREE.DoubleSide,
-        roughness: 0.8,
-        metalness: 0.02,
-        transparent: true,
-        opacity: 0.7,
-        depthWrite: true,
-    });
+  const mat = new THREE.MeshStandardMaterial({
+    map: ringTex,
+    side: THREE.DoubleSide,
+    roughness: 0.8,
+    metalness: 0.02,
+    transparent: true,
+    opacity: 0.7,
+    depthWrite: true,
+  });
 
-    const ring = new THREE.Mesh(geo, mat);
-    ring.name = 'Uranus_Ring';
-    return ring;
+  const ring = new THREE.Mesh(geo, mat);
+  ring.name = "Uranus_Ring";
+  return ring;
 }
 
 // ---- 通用行星 ----
 function createPlanet(bodyKey, mapsFn, materialOpts = {}, bumpScaleVal = 0.02) {
-    const cfg = BODIES[bodyKey];
-    const maps = mapsFn(2048);
-    const geo = new THREE.SphereGeometry(cfg.size, 96, 96);
-    const mat = new THREE.MeshStandardMaterial({
-        map: maps.map,
-        bumpMap: maps.bumpMap,
-        bumpScale: bumpScaleVal,
-        roughness: 0.7,
-        metalness: 0.03,
-        ...materialOpts,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.name = cfg.name;
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
+  const cfg = BODIES[bodyKey];
+  const maps = mapsFn(2048);
+  const geo = new THREE.SphereGeometry(cfg.size, 96, 96);
+  const mat = new THREE.MeshStandardMaterial({
+    map: maps.map,
+    bumpMap: maps.bumpMap,
+    bumpScale: bumpScaleVal,
+    roughness: 0.7,
+    metalness: 0.03,
+    ...materialOpts,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = cfg.name;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
 
-    mesh.rotation.order = 'YXZ';
-    mesh.rotation.x = degToRad(cfg.axialTilt);
+  mesh.rotation.order = "YXZ";
+  mesh.rotation.x = degToRad(cfg.axialTilt);
 
-    const bodyGroup = new THREE.Object3D();
-    bodyGroup.position.x = cfg.orbitRadius;
-    bodyGroup.add(mesh);
-    bodyGroup.name = cfg.name + '_Group';
+  const bodyGroup = new THREE.Object3D();
+  bodyGroup.position.x = cfg.orbitRadius;
+  bodyGroup.add(mesh);
+  bodyGroup.name = cfg.name + "_Group";
 
-    const orbitGroup = new THREE.Object3D();
-    orbitGroup.add(bodyGroup);
-    orbitGroup.name = cfg.name + '_Orbit';
+  const orbitGroup = new THREE.Object3D();
+  orbitGroup.add(bodyGroup);
+  orbitGroup.name = cfg.name + "_Orbit";
 
-    const inclinationGroup = new THREE.Object3D();
-    inclinationGroup.rotation.x = degToRad(cfg.orbitalIncl);
-    inclinationGroup.add(orbitGroup);
-    inclinationGroup.name = cfg.name + '_Incl';
+  const inclinationGroup = new THREE.Object3D();
+  inclinationGroup.rotation.x = degToRad(cfg.orbitalIncl);
+  inclinationGroup.add(orbitGroup);
+  inclinationGroup.name = cfg.name + "_Incl";
 
-    const extras = {};
+  const extras = {};
 
-    if (bodyKey === 'saturn') {
-        const ring = createSaturnRing(cfg.size);
-        mesh.add(ring);
-        extras.ring = ring;
-    }
-    if (bodyKey === 'uranus') {
-        const ring = createUranusRing(cfg.size);
-        mesh.add(ring);
-        extras.ring = ring;
-    }
+  if (bodyKey === "jupiter") {
+    const ring = createJupiterRing(cfg.size);
+    mesh.add(ring);
+    extras.ring = ring;
+  }
+  if (bodyKey === "saturn") {
+    const ring = createSaturnRing(cfg.size);
+    mesh.add(ring);
+    extras.ring = ring;
+  }
+  if (bodyKey === "uranus") {
+    const ring = createUranusRing(cfg.size);
+    mesh.add(ring);
+    extras.ring = ring;
+  }
 
-    return { inclinationGroup, orbitGroup, bodyGroup, mesh, extras };
+  return { inclinationGroup, orbitGroup, bodyGroup, mesh, extras };
 }
 
 // ---- 月球 ----
 function createMoon(earthGroup) {
-    const cfg = BODIES.moon;
-    const maps = createMoonMaps(2048);
-    const geo = new THREE.SphereGeometry(cfg.size, 96, 96);
-    const mat = new THREE.MeshStandardMaterial({
-        map: maps.map,
-        bumpMap: maps.bumpMap,
-        bumpScale: 0.03,
-        roughness: 0.88,
-        metalness: 0.0,
-    });
-    const mesh = new THREE.Mesh(geo, mat);
-    mesh.name = cfg.name;
-    mesh.castShadow = true;
-    mesh.receiveShadow = true;
-    mesh.position.x = cfg.orbitRadius;
+  const cfg = BODIES.moon;
+  const maps = createMoonMaps(2048);
+  const geo = new THREE.SphereGeometry(cfg.size, 96, 96);
+  const mat = new THREE.MeshStandardMaterial({
+    map: maps.map,
+    bumpMap: maps.bumpMap,
+    bumpScale: 0.03,
+    roughness: 0.88,
+    metalness: 0.0,
+  });
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.name = cfg.name;
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.position.x = cfg.orbitRadius;
 
-    mesh.rotation.order = 'YXZ';
-    mesh.rotation.x = degToRad(cfg.axialTilt);
+  mesh.rotation.order = "YXZ";
+  mesh.rotation.x = degToRad(cfg.axialTilt);
 
-    const orbitGroup = new THREE.Object3D();
-    orbitGroup.add(mesh);
-    orbitGroup.name = cfg.name + '_Orbit';
-    earthGroup.add(orbitGroup);
-    return { orbitGroup, mesh };
+  const orbitGroup = new THREE.Object3D();
+  orbitGroup.add(mesh);
+  orbitGroup.name = cfg.name + "_Orbit";
+  earthGroup.add(orbitGroup);
+  return { orbitGroup, mesh };
 }
 
 // ---- 主入口 ----
 export function createCelestialBodies(scene) {
-    const refs = {};
+  const refs = {};
 
-    const sun = createSun();
-    scene.add(sun.mesh);
-    scene.add(sun.innerGlow);
-    scene.add(sun.outerGlow);
-    refs.sun = sun.mesh;
-    refs.sunInnerGlow = sun.innerGlow;
-    refs.sunOuterGlow = sun.outerGlow;
-    refs.sunOrbitRadius = 0;
+  const sun = createSun();
+  scene.add(sun.mesh);
+  scene.add(sun.innerGlow);
+  scene.add(sun.outerGlow);
+  refs.sun = sun.mesh;
+  refs.sunInnerGlow = sun.innerGlow;
+  refs.sunOuterGlow = sun.outerGlow;
+  refs.sunOrbitRadius = 0;
 
-    // 水星
-    const mercury = createPlanet('mercury', createMercuryMaps, { roughness: 0.72 }, 0.022);
-    scene.add(mercury.inclinationGroup);
-    refs.mercuryOrbitGroup = mercury.orbitGroup;
-    refs.mercury = mercury.mesh;
-    refs.mercuryOrbitRadius = BODIES.mercury.orbitRadius;
+  // 水星
+  const mercury = createPlanet(
+    "mercury",
+    createMercuryMaps,
+    { roughness: 0.72 },
+    0.022,
+  );
+  scene.add(mercury.inclinationGroup);
+  refs.mercuryOrbitGroup = mercury.orbitGroup;
+  refs.mercury = mercury.mesh;
+  refs.mercuryOrbitRadius = BODIES.mercury.orbitRadius;
 
-    // 金星
-    const venus = createPlanet('venus', createVenusMaps, { roughness: 0.6 }, 0.008);
-    scene.add(venus.inclinationGroup);
-    refs.venusOrbitGroup = venus.orbitGroup;
-    refs.venus = venus.mesh;
-    refs.venusOrbitRadius = BODIES.venus.orbitRadius;
+  // 金星
+  const venus = createPlanet(
+    "venus",
+    createVenusMaps,
+    { roughness: 0.6 },
+    0.008,
+  );
+  scene.add(venus.inclinationGroup);
+  refs.venusOrbitGroup = venus.orbitGroup;
+  refs.venus = venus.mesh;
+  refs.venusOrbitRadius = BODIES.venus.orbitRadius;
 
-    // 地球
-    const earth = createPlanet('earth', createEarthMaps, {}, 0.025);
-    scene.add(earth.inclinationGroup);
-    refs.earthOrbitGroup = earth.orbitGroup;
-    refs.earthGroup = earth.bodyGroup;
-    refs.earth = earth.mesh;
-    refs.earthOrbitRadius = BODIES.earth.orbitRadius;
+  // 地球
+  const earth = createPlanet("earth", createEarthMaps, {}, 0.025);
+  scene.add(earth.inclinationGroup);
+  refs.earthOrbitGroup = earth.orbitGroup;
+  refs.earthGroup = earth.bodyGroup;
+  refs.earth = earth.mesh;
+  refs.earthOrbitRadius = BODIES.earth.orbitRadius;
 
-    const atmosphere = createEarthAtmosphere(BODIES.earth.size);
-    earth.bodyGroup.add(atmosphere);
-    refs.earthAtmosphere = atmosphere;
+  const atmosphere = createEarthAtmosphere(BODIES.earth.size);
+  earth.bodyGroup.add(atmosphere);
+  refs.earthAtmosphere = atmosphere;
 
-    // 月球
-    const moon = createMoon(earth.bodyGroup);
-    refs.moonOrbitGroup = moon.orbitGroup;
-    refs.moon = moon.mesh;
-    refs.moonOrbitRadius = BODIES.moon.orbitRadius;
+  // 月球
+  const moon = createMoon(earth.bodyGroup);
+  refs.moonOrbitGroup = moon.orbitGroup;
+  refs.moon = moon.mesh;
+  refs.moonOrbitRadius = BODIES.moon.orbitRadius;
 
-    // 火星
-    const mars = createPlanet('mars', createMarsMaps, { roughness: 0.78 }, 0.018);
-    scene.add(mars.inclinationGroup);
-    refs.marsOrbitGroup = mars.orbitGroup;
-    refs.mars = mars.mesh;
-    refs.marsOrbitRadius = BODIES.mars.orbitRadius;
+  // 火星
+  const mars = createPlanet("mars", createMarsMaps, { roughness: 0.78 }, 0.018);
+  scene.add(mars.inclinationGroup);
+  refs.marsOrbitGroup = mars.orbitGroup;
+  refs.mars = mars.mesh;
+  refs.marsOrbitRadius = BODIES.mars.orbitRadius;
 
-    // 木星
-    const jupiter = createPlanet('jupiter', createJupiterMaps, { roughness: 0.55 }, 0.012);
-    scene.add(jupiter.inclinationGroup);
-    refs.jupiterOrbitGroup = jupiter.orbitGroup;
-    refs.jupiter = jupiter.mesh;
-    refs.jupiterOrbitRadius = BODIES.jupiter.orbitRadius;
+  // 木星
+  const jupiter = createPlanet(
+    "jupiter",
+    createJupiterMaps,
+    { roughness: 0.55 },
+    0.012,
+  );
+  scene.add(jupiter.inclinationGroup);
+  refs.jupiterOrbitGroup = jupiter.orbitGroup;
+  refs.jupiter = jupiter.mesh;
+  refs.jupiterOrbitRadius = BODIES.jupiter.orbitRadius;
+  refs.jupiterRing = jupiter.extras.ring;
 
-    // 土星
-    const saturn = createPlanet('saturn', createSaturnMaps, { roughness: 0.65 }, 0.010);
-    scene.add(saturn.inclinationGroup);
-    refs.saturnOrbitGroup = saturn.orbitGroup;
-    refs.saturn = saturn.mesh;
-    refs.saturnOrbitRadius = BODIES.saturn.orbitRadius;
-    refs.saturnRing = saturn.extras.ring;
+  // 土星
+  const saturn = createPlanet(
+    "saturn",
+    createSaturnMaps,
+    { roughness: 0.65 },
+    0.01,
+  );
+  scene.add(saturn.inclinationGroup);
+  refs.saturnOrbitGroup = saturn.orbitGroup;
+  refs.saturn = saturn.mesh;
+  refs.saturnOrbitRadius = BODIES.saturn.orbitRadius;
+  refs.saturnRing = saturn.extras.ring;
 
-    // 天王星
-    const uranus = createPlanet('uranus', createUranusMaps, { roughness: 0.6 }, 0.008);
-    scene.add(uranus.inclinationGroup);
-    refs.uranusOrbitGroup = uranus.orbitGroup;
-    refs.uranus = uranus.mesh;
-    refs.uranusOrbitRadius = BODIES.uranus.orbitRadius;
-    refs.uranusRing = uranus.extras.ring;
+  // 天王星
+  const uranus = createPlanet(
+    "uranus",
+    createUranusMaps,
+    { roughness: 0.6 },
+    0.008,
+  );
+  scene.add(uranus.inclinationGroup);
+  refs.uranusOrbitGroup = uranus.orbitGroup;
+  refs.uranus = uranus.mesh;
+  refs.uranusOrbitRadius = BODIES.uranus.orbitRadius;
+  refs.uranusRing = uranus.extras.ring;
 
-    // 海王星
-    const neptune = createPlanet('neptune', createNeptuneMaps, { roughness: 0.58 }, 0.010);
-    scene.add(neptune.inclinationGroup);
-    refs.neptuneOrbitGroup = neptune.orbitGroup;
-    refs.neptune = neptune.mesh;
-    refs.neptuneOrbitRadius = BODIES.neptune.orbitRadius;
+  // 海王星
+  const neptune = createPlanet(
+    "neptune",
+    createNeptuneMaps,
+    { roughness: 0.58 },
+    0.01,
+  );
+  scene.add(neptune.inclinationGroup);
+  refs.neptuneOrbitGroup = neptune.orbitGroup;
+  refs.neptune = neptune.mesh;
+  refs.neptuneOrbitRadius = BODIES.neptune.orbitRadius;
 
-    return refs;
+  return refs;
 }

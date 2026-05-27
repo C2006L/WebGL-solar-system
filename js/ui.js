@@ -86,8 +86,13 @@ export function toggleHelp() {
 
 export function hideLoading() {
     const el = document.getElementById('loading');
-    if (el) { el.style.opacity = '0'; setTimeout(() => el.remove(), 500); }
+    if (el) { el.style.opacity = '0'; setTimeout(() => { if(el.parentNode) el.remove(); }, 500); }
 }
+
+setTimeout(function() {
+    var el = document.getElementById('loading');
+    if (el) { console.warn('Loading timeout — forcing hide'); el.style.opacity = '0'; setTimeout(() => { if(el && el.parentNode) el.remove(); }, 500); }
+}, 8000);
 
 export function createViewPresetButtons(onPresetClick) {
     const container = document.createElement('div');

@@ -1,25 +1,30 @@
 // ============================================================
-// main.js — 程序主入口（v3：精简 + 统一 switchToPreset）
+// main.js — 入口（v13.2：修复所有模块接口）
 // ============================================================
 
 import * as THREE from "three";
-import { initCamera, handleResize, switchToPreset } from "./camera.js";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { initCamera } from "./camera.js";
 import { createLighting } from "./lighting.js";
-import { createStarField } from "./starfield.js";
 import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
+import { createStarfield } from "./starfield.js";
 import { createAsteroidBelt } from "./asteroid-belt.js";
+import {
+  createAnimationLoop,
+  applyPreset,
+  handleResize,
+} from "./loop.js";
 import {
   hideLoading,
   createViewPresetButtons,
-  createOrbitToggleButton,
   toggleHelp,
-  highlightPresetButton,
 } from "./ui.js";
 import { initInteraction } from "./interaction.js";
-import { createAnimationLoop } from "./loop.js";
 
-// ---- 1. Three.js 三大核心 ----
+try {
+
+// ---- 1. Three.js 核心对象 ----
 const scene = new THREE.Scene();
 scene.background = new THREE.Color(0x020210);
 
@@ -35,7 +40,8 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 document.body.appendChild(renderer.domElement);
 
-const { camera, controls } = initCamera(renderer.domElement);
+const camera = initCamera(renderer.domElement);
+const controls = new OrbitControls(camera, renderer.domElement);
 
 // ---- 2. 灯光 ----
 const { ambient, hemiLight, sunLight } = createLighting();
@@ -44,7 +50,7 @@ scene.add(hemiLight);
 scene.add(sunLight);
 
 // ---- 3. 星空 ----
-scene.add(createStarField());
+scene.add(createStarfield());
 
 // ---- 4. 天体模型 ----
 const bodyRefs = createCelestialBodies(scene);
@@ -54,29 +60,17 @@ const asteroidBelt = createAsteroidBelt();
 scene.add(asteroidBelt);
 
 // ---- 6. 轨道线 ----
-const orbitLines = createAllOrbits(bodyRefs);
-scene.add(orbitLines);
+const orbitGroup = createAllOrbits(bodyRefs);
+scene.add(orbitGroup);
 
-// ---- 7. 统一的 switchToPreset 包装（唯一入口） ----
-function applyPreset(presetKey) {
-  const earthPos =
-    presetKey === "followEarth" && bodyRefs.earthGroup
-      ? bodyRefs.earthGroup.getWorldPosition(new THREE.Vector3())
-      : null;
-  switchToPreset(camera, controls, presetKey, earthPos);
-  highlightPresetButton(presetKey);
-}
-
-// ---- 8. UI 按钮 ----
+// ---- 7. UI 按钮 ----
 createViewPresetButtons(applyPreset);
-createOrbitToggleButton((visible) => {
-  orbitLines.visible = visible;
-});
+toggleHelp();
 
-// ---- 9. 交互 ----
+// ---- 8. 交互 ----
 initInteraction(camera, renderer, bodyRefs, controls);
 
-// ---- 10. 上下文 & 启动 ----
+// ---- 9. 启动动画循环 ----
 const clock = new THREE.Clock();
 const ctx = {
   scene,
@@ -84,7 +78,7 @@ const ctx = {
   renderer,
   controls,
   bodyRefs,
-  orbitLines,
+  orbitLines: orbitGroup,
   asteroidBelt,
   clock,
   toggleHelp,
@@ -96,7 +90,13 @@ window.addEventListener("resize", () => handleResize(camera, renderer));
 hideLoading();
 loop.start();
 
-console.log("Solar System v13 Ready — local textures, no CORS issues");
-console.log(
-  "  ↑/↓: speed | Space: pause | 1-4: camera | R: reset | H: help | O: orbits",
-);
+console.log('Solar System v13 Ready');
+console.log('  ↑/↓: speed | Space: pause | 1-4: camera | R: reset | H: help | O: orbits');
+
+} catch (err) {
+  console.error('Solar System init error:', err);
+  var el = document.getElementById('loading');
+  if (el) el.innerHTML = '<p style="color:#ff4444">Error loading. Press F12 → Console for details.</p>';
+}
+
+window.addEventListener('error', function(e) { console.error('Global error:', e.error); });

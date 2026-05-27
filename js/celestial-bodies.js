@@ -31,7 +31,7 @@ function createSun() {
     const mesh = new THREE.Mesh(geo, mat);
     mesh.name = cfg.name;
 
-    const innerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.18, 64, 64);
+    const innerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.05, 64, 64);
     const innerGlowMat = new THREE.ShaderMaterial({
         uniforms: { uColor: { value: new THREE.Color('#ff8800') } },
         vertexShader: /* glsl */ `
@@ -51,7 +51,7 @@ function createSun() {
             void main() {
                 vec3 V = normalize(cameraPosition - vPosition);
                 float f = 1.0 - abs(dot(V, normalize(vNormal)));
-                float alpha = pow(f, 4.5) * 0.35;
+                float alpha = pow(f, 5.0) * 0.4;
                 gl_FragColor = vec4(uColor, alpha);
             }
         `,
@@ -61,7 +61,7 @@ function createSun() {
     });
     const innerGlow = new THREE.Mesh(innerGlowGeo, innerGlowMat);
 
-    const outerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.35, 48, 48);
+    const outerGlowGeo = new THREE.SphereGeometry(cfg.size * 1.12, 48, 48);
     const outerGlowMat = new THREE.ShaderMaterial({
         uniforms: { uColor: { value: new THREE.Color('#ffcc44') } },
         vertexShader: /* glsl */ `
@@ -81,7 +81,7 @@ function createSun() {
             void main() {
                 vec3 V = normalize(cameraPosition - vPosition);
                 float f = 1.0 - abs(dot(V, normalize(vNormal)));
-                float alpha = pow(f, 6.0) * 0.18;
+                float alpha = pow(f, 6.5) * 0.2;
                 gl_FragColor = vec4(uColor, alpha);
             }
         `,

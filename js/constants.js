@@ -8,6 +8,7 @@ export const SIM = {
     MIN_SPEED: 0.0,
     MAX_SPEED: 5.0,
     MAX_DELTA: 0.1,
+    ROTATION_SPEED_SCALE: 0.03,
 };
 
 // ---- 天体物理参数 ----
@@ -16,13 +17,14 @@ export const SIM = {
 // orbitSpeed    : 角速度 ∝ 1/realPeriod
 // orbitalIncl   : 轨道倾角（度，相对黄道面）
 // axialTilt     : 自转轴倾角（度）
+// selfRotationSpeed: 2π/自转周期(天), 动画中乘 ROTATION_SPEED_SCALE
 // 数据来源      : NASA Planetary Fact Sheet
 // ============================================================
-const SCALE = 7; // 1 AU = 7 单位
+const SCALE = 10; // 1 AU = 10 单位
 
 export const BODIES = {
     sun: {
-        name: 'Sun', size: 5.0, orbitRadius: 0, orbitSpeed: 0,
+        name: 'Sun', size: 3.5, orbitRadius: 0, orbitSpeed: 0,
         orbitalIncl: 0, axialTilt: 7.25,
         selfRotationSpeed: 0.15, type: 'star',
         realAU: 0, realPeriod: 0, realRadius: 696340,
@@ -57,7 +59,7 @@ export const BODIES = {
         description: 'Only known planet with life. 71% ocean surface. Atmosphere: N₂ 78%, O₂ 21%.',
     },
     moon: {
-        name: 'Moon', size: 0.18, orbitRadius: 1.6,
+        name: 'Moon', size: 0.18, orbitRadius: 2.3,
         orbitSpeed: 2 * Math.PI / (27.3),
         orbitalIncl: 5.14, axialTilt: 6.68,
         selfRotationSpeed: 2 * Math.PI / (27.3),
@@ -114,16 +116,16 @@ export const BODIES = {
 
 // ---- 相机预设 ----
 export const CAMERA_PRESETS = {
-    free:    { name: 'Free Orbit',   position: [6, 8, 25], target: [0, 0, 0] },
-    topDown: { name: 'Top Down',     position: [0, 35, 0.5], target: [0, 0, 0] },
+    free:    { name: 'Free Orbit',   position: [0, 30, 50], target: [0, 0, 0] },
+    topDown: { name: 'Top Down',     position: [0, 45, 0.5], target: [0, 0, 0] },
     followEarth: { name: 'Follow Earth', position: [2, 1.5, 4], target: [0, 0, 0], isDynamic: true },
-    sunView: { name: 'Sun View',     position: [1.5, 1, 5], target: [0, 0, 0] },
+    sunView: { name: 'Sun View',     position: [2, 1.5, 6], target: [0, 0, 0] },
 };
 
 // ---- 场景常量 ----
 export const SCENE = {
     STAR_COUNT: 3000,
-    STAR_RADIUS: 250,
+    STAR_RADIUS: 350,
     ORBIT_SEGMENTS: 256,
     ASTEROID_COUNT: 3000,
     ASTEROID_MIN_R: 1.6 * SCALE,

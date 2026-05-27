@@ -143,7 +143,10 @@ export function createAnimationLoop(ctx) {
       }
       if (cfg.type === "both" || cfg.type === "self") {
         const mesh = bodyRefs[refKey];
-        if (mesh) mesh.rotation.y += bodyCfg.selfRotationSpeed * dt;
+        if (mesh) {
+          const rotScale = bodyCfg.type === 'star' ? 1.0 : SIM.ROTATION_SPEED_SCALE;
+          mesh.rotation.y += bodyCfg.selfRotationSpeed * rotScale * dt;
+        }
       }
     }
 

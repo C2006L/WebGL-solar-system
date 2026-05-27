@@ -30,12 +30,13 @@ function canvasToLinearTexture(canvas) {
 }
 
 // ---- 太阳纹理（v7：真实太阳表面贴图） ----
-const PLANET_TEX_BASE =
+const SSS_TEX = "https://www.solarsystemscope.com/textures/download/";
+const THREE_TEX =
   "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/";
 
 export function createSunMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(PLANET_TEX_BASE + "sun.jpg");
+  const map = loader.load(SSS_TEX + "2k_sun.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
@@ -44,97 +45,18 @@ export function createSunMaps(_size) {
 // ---- 月球纹理（v7：真实月球贴图） ----
 export function createMoonMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(PLANET_TEX_BASE + "moon_1024.jpg");
+  const map = loader.load(SSS_TEX + "2k_moon.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
   return { map, bumpMap: null };
 }
 
-// ---- 火星纹理 + 凹凸贴图 ----
-export function createMarsMaps(size = 1024) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  const baseGrad = ctx.createRadialGradient(
-    size * 0.4,
-    size * 0.4,
-    0,
-    size * 0.5,
-    size * 0.5,
-    size * 0.7,
-  );
-  baseGrad.addColorStop(0, "#d05020");
-  baseGrad.addColorStop(0.5, "#c1440e");
-  baseGrad.addColorStop(1, "#8a3008");
-  ctx.fillStyle = baseGrad;
-  ctx.fillRect(0, 0, size, size);
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 25;
-    d[i] = clamp(d[i] + n, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n * 0.5, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n * 0.2, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  for (let i = 0; i < 60; i++) {
-    const x = Math.random() * size;
-    const y = Math.random() * size;
-    const r = Math.random() * 40 + 10;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, "rgba(100,40,10,0.35)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  const iceN = ctx.createLinearGradient(0, 0, 0, size * 0.08);
-  iceN.addColorStop(0, "rgba(230,220,210,0.6)");
-  iceN.addColorStop(1, "rgba(230,220,210,0)");
-  ctx.fillStyle = iceN;
-  ctx.fillRect(0, 0, size, size * 0.08);
-
-  const iceS = ctx.createLinearGradient(0, size, 0, size * 0.92);
-  iceS.addColorStop(0, "rgba(230,220,210,0.6)");
-  iceS.addColorStop(1, "rgba(230,220,210,0)");
-  ctx.fillStyle = iceS;
-  ctx.fillRect(0, size * 0.92, size, size * 0.08);
-
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#808080";
-  bctx.fillRect(0, 0, size, size);
-
-  const bimg = bctx.getImageData(0, 0, size, size);
-  const bd = bimg.data;
-  for (let i = 0; i < bd.length; i += 4) {
-    const n = (Math.random() - 0.5) * 50;
-    bd[i] = bd[i + 1] = bd[i + 2] = clamp(128 + n, 60, 200);
-  }
-  bctx.putImageData(bimg, 0, 0);
-
-  for (let i = 0; i < 300; i++) {
-    const cx = Math.random() * size;
-    const cy = Math.random() * size;
-    const r = Math.random() * 10 + 2;
-    const bg = bctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 1.15);
-    bg.addColorStop(0, "rgba(25,25,25,0.55)");
-    bg.addColorStop(0.55, "rgba(25,25,25,0.25)");
-    bg.addColorStop(0.6, "rgba(230,230,230,0.6)");
-    bg.addColorStop(1, "rgba(128,128,128,0)");
-    bctx.fillStyle = bg;
-    bctx.beginPath();
-    bctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
-    bctx.fill();
-  }
-
-  return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
+export function createMarsMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(SSS_TEX + "2k_mars.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
 
 // ---- 木卫一 纹理 + 凹凸贴图 ----
@@ -447,394 +369,67 @@ export function createCallistoMaps(size = 2048) {
   return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
 }
 
-// ---- 水星纹理 + 凹凸贴图 ----
-// 策略：灰色岩石表面 + 密集环形山（无大气，与月球类似但更暗）
-
-export function createMercuryMaps(size = 1024) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  ctx.fillStyle = "#a09888";
-  ctx.fillRect(0, 0, size, size);
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 28;
-    d[i] = clamp(d[i] + n, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n * 0.85, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n * 0.7, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#808080";
-  bctx.fillRect(0, 0, size, size);
-
-  const bimgBase = bctx.getImageData(0, 0, size, size);
-  const bbd = bimgBase.data;
-  for (let i = 0; i < bbd.length; i += 4) {
-    const n = (Math.random() - 0.5) * 45;
-    bbd[i] = bbd[i + 1] = bbd[i + 2] = clamp(128 + n, 60, 200);
-  }
-  bctx.putImageData(bimgBase, 0, 0);
-
-  for (let i = 0; i < 400; i++) {
-    const cx = Math.random() * size;
-    const cy = Math.random() * size;
-    const r = Math.random() * 10 + 2;
-    const gray = 140 + Math.random() * 40;
-
-    const og = ctx.createRadialGradient(cx, cy, r * 0.7, cx, cy, r * 1.2);
-    og.addColorStop(0, `rgba(${gray + 10},${gray + 8},${gray + 6},0)`);
-    og.addColorStop(0.7, `rgba(${gray + 40},${gray + 37},${gray + 35},0.65)`);
-    og.addColorStop(1, `rgba(${gray + 10},${gray + 8},${gray + 6},0)`);
-    ctx.fillStyle = og;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 1.2, 0, Math.PI * 2);
-    ctx.fill();
-
-    const ig = ctx.createRadialGradient(
-      cx - r * 0.15,
-      cy - r * 0.15,
-      0,
-      cx,
-      cy,
-      r * 0.7,
-    );
-    ig.addColorStop(0, `rgba(${gray - 35},${gray - 37},${gray - 40},0.8)`);
-    ig.addColorStop(1, `rgba(${gray - 10},${gray - 12},${gray - 15},0)`);
-    ctx.fillStyle = ig;
-    ctx.beginPath();
-    ctx.arc(cx, cy, r * 0.7, 0, Math.PI * 2);
-    ctx.fill();
-
-    const cg = bctx.createRadialGradient(cx, cy, r * 0.55, cx, cy, r * 1.15);
-    cg.addColorStop(0, "rgba(25,25,25,0.6)");
-    cg.addColorStop(0.5, "rgba(25,25,25,0.3)");
-    cg.addColorStop(0.7, "rgba(235,235,235,0.65)");
-    cg.addColorStop(1, "rgba(128,128,128,0)");
-    bctx.fillStyle = cg;
-    bctx.beginPath();
-    bctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
-    bctx.fill();
-  }
-
-  return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
+export function createMercuryMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(SSS_TEX + "2k_mercury.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
 
-// ---- 木星纹理 + 凹凸贴图 ----
-// 策略：水平条纹 + 大红斑 + 湍流涡旋
-
-export function createJupiterMaps(size = 2048) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  const baseGrad = ctx.createLinearGradient(0, 0, 0, size);
-  baseGrad.addColorStop(0, "#e8c890");
-  baseGrad.addColorStop(0.25, "#d4a060");
-  baseGrad.addColorStop(0.5, "#e0c080");
-  baseGrad.addColorStop(0.75, "#c89050");
-  baseGrad.addColorStop(1, "#e8c890");
-  ctx.fillStyle = baseGrad;
-  ctx.fillRect(0, 0, size, size);
-
-  // 水平条纹
-  for (let i = 0; i < 40; i++) {
-    const y = (i / 40) * size;
-    const h = size / 40 + Math.random() * 8;
-    const colors = [
-      "#d4a060",
-      "#e0c080",
-      "#c89050",
-      "#e8c890",
-      "#b07840",
-      "#f0d0a0",
-    ];
-    const stripeAlpha = 0.12 + Math.random() * 0.3;
-    ctx.fillStyle = colors[Math.floor(Math.random() * colors.length)];
-    ctx.globalAlpha = stripeAlpha;
-    ctx.fillRect(0, y, size, h);
-  }
-  ctx.globalAlpha = 1.0;
-
-  // 湍流涡旋
-  for (let i = 0; i < 200; i++) {
-    const x = Math.random() * size;
-    const y = Math.random() * size;
-    const r = Math.random() * 40 + 8;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    const warm = Math.random() > 0.5;
-    g.addColorStop(0, warm ? "rgba(220,150,80,0.3)" : "rgba(200,160,120,0.25)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // 大红斑（位置固定）
-  const spotX = size * 0.62,
-    spotY = size * 0.45,
-    spotR = size * 0.1;
-  const spotGrad = ctx.createRadialGradient(
-    spotX,
-    spotY,
-    0,
-    spotX,
-    spotY,
-    spotR,
-  );
-  spotGrad.addColorStop(0, "rgba(220,100,60,0.75)");
-  spotGrad.addColorStop(0.4, "rgba(240,140,80,0.6)");
-  spotGrad.addColorStop(0.7, "rgba(240,160,100,0.3)");
-  spotGrad.addColorStop(1, "rgba(200,140,80,0)");
-  ctx.fillStyle = spotGrad;
-  ctx.beginPath();
-  ctx.ellipse(spotX, spotY, spotR, spotR * 0.55, 0.1, 0, Math.PI * 2);
-  ctx.fill();
-
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#808080";
-  bctx.fillRect(0, 0, size, size);
-  for (let i = 0; i < 40; i++) {
-    const y = (i / 40) * size;
-    const h = size / 40;
-    const alpha = 0.05 + Math.random() * 0.12;
-    bctx.fillStyle = `rgba(${180 + Math.random() * 75},${180 + Math.random() * 75},${180 + Math.random() * 75},${alpha})`;
-    bctx.fillRect(0, y, size, h);
-  }
-
-  return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
+export function createJupiterMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(SSS_TEX + "2k_jupiter.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
 
-// ---- 土星纹理 + 凹凸贴图 ----
-// 策略：淡金黄条带 + 微妙环带阴影
-
-export function createSaturnMaps(size = 2048) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  const baseGrad = ctx.createLinearGradient(0, 0, 0, size);
-  baseGrad.addColorStop(0, "#f0e0c0");
-  baseGrad.addColorStop(0.3, "#e8d4a8");
-  baseGrad.addColorStop(0.5, "#f0e0c0");
-  baseGrad.addColorStop(0.7, "#e0c890");
-  baseGrad.addColorStop(1, "#eedcc0");
-  ctx.fillStyle = baseGrad;
-  ctx.fillRect(0, 0, size, size);
-
-  for (let i = 0; i < 30; i++) {
-    const y = (i / 30) * size;
-    const h = size / 30 + Math.random() * 4;
-    ctx.fillStyle = `rgba(${220 + Math.random() * 35},${190 + Math.random() * 40},${130 + Math.random() * 40},${0.05 + Math.random() * 0.12})`;
-    ctx.fillRect(0, y, size, h);
-  }
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 12;
-    d[i] = clamp(d[i] + n, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n * 0.8, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n * 0.5, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#888888";
-  bctx.fillRect(0, 0, size, size);
-
-  return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
+export function createSaturnMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(SSS_TEX + "2k_saturn.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
 
-// ---- 天王星纹理 + 凹凸贴图 ----
-// 策略：青蓝色均匀表面（甲烷大气）+ 微弱条带
-
-export function createUranusMaps(size = 1024) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  const baseGrad = ctx.createLinearGradient(0, 0, 0, size);
-  baseGrad.addColorStop(0, "#8ec8e0");
-  baseGrad.addColorStop(0.5, "#7ec0d8");
-  baseGrad.addColorStop(1, "#8ec8e0");
-  ctx.fillStyle = baseGrad;
-  ctx.fillRect(0, 0, size, size);
-
-  for (let i = 0; i < 10; i++) {
-    const y = (i / 10) * size;
-    const h = size / 10;
-    ctx.fillStyle = `rgba(${140 + Math.random() * 20},${200 + Math.random() * 30},${225 + Math.random() * 30},${0.03 + Math.random() * 0.06})`;
-    ctx.fillRect(0, y, size, h);
-  }
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 10;
-    d[i] = clamp(d[i] + n * 0.4, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n * 0.7, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#888888";
-  bctx.fillRect(0, 0, size, size);
-
-  return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
+export function createUranusMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(SSS_TEX + "2k_uranus.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
 
-// ---- 海王星纹理 + 凹凸贴图 ----
-// 策略：深蓝色（甲烷吸收红光更强烈）
-
-export function createNeptuneMaps(size = 1024) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  const baseGrad = ctx.createLinearGradient(0, 0, 0, size);
-  baseGrad.addColorStop(0, "#3355cc");
-  baseGrad.addColorStop(0.5, "#2244aa");
-  baseGrad.addColorStop(1, "#3355cc");
-  ctx.fillStyle = baseGrad;
-  ctx.fillRect(0, 0, size, size);
-
-  for (let i = 0; i < 14; i++) {
-    const y = (i / 14) * size;
-    const h = size / 14;
-    ctx.fillStyle = `rgba(${30 + Math.random() * 30},${50 + Math.random() * 40},${180 + Math.random() * 75},${0.04 + Math.random() * 0.08})`;
-    ctx.fillRect(0, y, size, h);
-  }
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 14;
-    d[i] = clamp(d[i] + n * 0.3, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n * 0.5, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#888888";
-  bctx.fillRect(0, 0, size, size);
-
-  return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
+export function createNeptuneMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(SSS_TEX + "2k_neptune.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
-
-// ---- 地球纹理（v7：NASA蓝色弹珠 + 法线贴图 + 云层） ----
 
 export function createEarthMaps(_size) {
   const loader = new THREE.TextureLoader();
-
-  const map = loader.load(PLANET_TEX_BASE + "earth_atmos_2048.jpg");
+  const map = loader.load(SSS_TEX + "2k_earth_daymap.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
-
-  const bumpMap = loader.load(PLANET_TEX_BASE + "earth_normal_2048.jpg");
+  const bumpMap = loader.load(THREE_TEX + "earth_normal_2048.jpg");
   bumpMap.colorSpace = THREE.LinearSRGBColorSpace;
-
   return { map, bumpMap };
 }
 
 export function createEarthCloudMap() {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(PLANET_TEX_BASE + "earth_clouds_1024.png");
+  const map = loader.load(SSS_TEX + "2k_earth_clouds.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   return map;
 }
 
-// ---- 金星纹理 + 凹凸贴图 ----
-export function createVenusMaps(size = 1024) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  const baseGrad = ctx.createLinearGradient(0, 0, 0, size);
-  baseGrad.addColorStop(0, "#e8d8b8");
-  baseGrad.addColorStop(0.3, "#ddd0b0");
-  baseGrad.addColorStop(0.5, "#e5d5b5");
-  baseGrad.addColorStop(0.7, "#d8c8a5");
-  baseGrad.addColorStop(1, "#e0d0b0");
-  ctx.fillStyle = baseGrad;
-  ctx.fillRect(0, 0, size, size);
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 16;
-    d[i] = clamp(d[i] + n, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n * 0.85, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n * 0.5, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  // 凹凸贴图：硫酸云起伏
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#888888";
-  bctx.fillRect(0, 0, size, size);
-
-  for (let i = 0; i < 18; i++) {
-    const y = (i / 18) * size;
-    const bandHeight = size / 18;
-    const alpha = 0.08 + Math.random() * 0.12;
-    const bright = Math.random() > 0.5;
-    ctx.fillStyle = bright
-      ? `rgba(255,245,225,${alpha})`
-      : `rgba(200,180,140,${alpha})`;
-    ctx.fillRect(0, y, size, bandHeight);
-
-    // 云带凹凸
-    const bAlpha = bright ? 0.12 : 0.06;
-    bctx.fillStyle = bright
-      ? `rgba(200,200,200,${bAlpha})`
-      : `rgba(80,80,80,${bAlpha})`;
-    bctx.fillRect(0, y, size, bandHeight);
-  }
-
-  for (let i = 0; i < 120; i++) {
-    const x = Math.random() * size;
-    const y = Math.random() * size;
-    const r = Math.random() * 50 + 10;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, "rgba(245,235,210,0.25)");
-    g.addColorStop(0.6, "rgba(235,225,200,0.1)");
-    g.addColorStop(1, "rgba(230,220,195,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-
-    const bg = bctx.createRadialGradient(x, y, 0, x, y, r);
-    bg.addColorStop(0, "rgba(240,240,240,0.18)");
-    bg.addColorStop(1, "rgba(136,136,136,0)");
-    bctx.fillStyle = bg;
-    bctx.beginPath();
-    bctx.arc(x, y, r, 0, Math.PI * 2);
-    bctx.fill();
-  }
-
-  return {
-    map: canvasToTexture(c),
-    bumpMap: canvasToLinearTexture(bc),
-  };
+export function createVenusMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(SSS_TEX + "2k_venus_surface.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }

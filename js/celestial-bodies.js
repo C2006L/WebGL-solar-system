@@ -89,11 +89,11 @@ function createJupiterRing(planetSize) {
     new THREE.MeshStandardMaterial({
       map: tex,
       side: THREE.DoubleSide,
-      roughness: 0.85,
-      metalness: 0.01,
+      roughness: 0.9,
+      metalness: 0.0,
       transparent: true,
       opacity: 0.55,
-      depthWrite: true,
+      depthWrite: false,
     }),
   );
   ring.renderOrder = 1;
@@ -104,55 +104,25 @@ function createJupiterRing(planetSize) {
 function createSaturnRing(planetSize) {
   const geo = new THREE.RingGeometry(planetSize * 1.3, planetSize * 2.2, 192);
   geo.rotateX(-Math.PI / 2);
-  const rc = document.createElement("canvas");
-  rc.width = 1024;
-  rc.height = 64;
-  const rctx = rc.getContext("2d");
-  const rg = rctx.createLinearGradient(0, 0, 1024, 0);
-  rg.addColorStop(0, "rgba(160,145,120,0.15)");
-  rg.addColorStop(0.06, "rgba(190,170,140,0.5)");
-  rg.addColorStop(0.12, "rgba(160,145,120,0.2)");
-  rg.addColorStop(0.18, "rgba(240,220,180,0.75)");
-  rg.addColorStop(0.28, "rgba(255,240,200,0.95)");
-  rg.addColorStop(0.38, "rgba(240,220,180,0.88)");
-  rg.addColorStop(0.44, "rgba(220,200,160,0.7)");
-  rg.addColorStop(0.48, "rgba(60,50,35,0.3)");
-  rg.addColorStop(0.52, "rgba(50,40,30,0.25)");
-  rg.addColorStop(0.56, "rgba(80,65,45,0.35)");
-  rg.addColorStop(0.62, "rgba(230,210,175,0.75)");
-  rg.addColorStop(0.72, "rgba(220,200,165,0.7)");
-  rg.addColorStop(0.82, "rgba(200,180,145,0.55)");
-  rg.addColorStop(0.9, "rgba(170,150,120,0.3)");
-  rg.addColorStop(1, "rgba(120,100,80,0.08)");
-  rctx.fillStyle = rg;
-  rctx.fillRect(0, 0, 1024, 64);
-  for (let i = 0; i < 200; i++) {
-    const x = Math.random() * 1024;
-    rctx.fillStyle =
-      Math.random() > 0.5
-        ? `rgba(255,240,210,${0.03 + Math.random() * 0.08})`
-        : `rgba(150,120,90,${0.03 + Math.random() * 0.08})`;
-    rctx.fillRect(x, 0, 2 + Math.random() * 3, 64);
-  }
-  const tex = new THREE.Texture(rc);
+  const loader = new THREE.TextureLoader();
+  const tex = loader.load(
+    "https://www.solarsystemscope.com/textures/download/2k_saturn_ring_alpha.png",
+  );
   tex.colorSpace = THREE.SRGBColorSpace;
-  tex.wrapS = THREE.RepeatWrapping;
-  tex.needsUpdate = true;
   const ring = new THREE.Mesh(
     geo,
     new THREE.MeshStandardMaterial({
       map: tex,
+      alphaMap: tex,
       side: THREE.DoubleSide,
-      roughness: 0.38,
-      metalness: 0.06,
+      roughness: 0.7,
+      metalness: 0.0,
       transparent: true,
       opacity: 0.9,
-      depthWrite: true,
+      depthWrite: false,
     }),
   );
   ring.renderOrder = 1;
-  ring.castShadow = true;
-  ring.receiveShadow = true;
   ring.name = "Saturn_Ring";
   return ring;
 }
@@ -180,8 +150,8 @@ function createUranusRing(planetSize) {
     new THREE.MeshStandardMaterial({
       map: tex,
       side: THREE.DoubleSide,
-      roughness: 0.8,
-      metalness: 0.02,
+      roughness: 0.9,
+      metalness: 0.0,
       transparent: true,
       opacity: 0.7,
       depthWrite: true,
@@ -266,9 +236,7 @@ function createEarthMoon(earthGroup) {
   const geo = new THREE.SphereGeometry(cfg.size, 96, 96);
   const mat = new THREE.MeshStandardMaterial({
     map: maps.map,
-    bumpMap: maps.bumpMap,
-    bumpScale: 0.03,
-    roughness: 0.88,
+    roughness: 0.9,
     metalness: 0.0,
     emissive: new THREE.Color(cfg.emissiveHex),
     emissiveIntensity: cfg.emissiveIntensity,
@@ -295,8 +263,8 @@ function createJupiterMoon(bodyKey, mapsFn, jupiterGroup) {
     map: maps.map,
     bumpMap: maps.bumpMap,
     bumpScale: 0.04,
-    roughness: 0.72,
-    metalness: 0.01,
+    roughness: 0.85,
+    metalness: 0.0,
     emissive: new THREE.Color(cfg.emissiveHex),
     emissiveIntensity: cfg.emissiveIntensity,
   });
@@ -327,7 +295,7 @@ export function createCelestialBodies(scene) {
   const mercury = createPlanet(
     "mercury",
     createMercuryMaps,
-    { roughness: 0.55, metalness: 0.02 },
+    { roughness: 0.85, metalness: 0.0 },
     0.035,
   );
   scene.add(mercury.inclinationGroup);
@@ -338,7 +306,7 @@ export function createCelestialBodies(scene) {
   const venus = createPlanet(
     "venus",
     createVenusMaps,
-    { roughness: 0.38, metalness: 0.0 },
+    { roughness: 0.9, metalness: 0.0 },
     0.015,
   );
   scene.add(venus.inclinationGroup);
@@ -387,7 +355,7 @@ export function createCelestialBodies(scene) {
   const mars = createPlanet(
     "mars",
     createMarsMaps,
-    { roughness: 0.55, metalness: 0.01 },
+    { roughness: 0.7, metalness: 0.0 },
     0.03,
   );
   scene.add(mars.inclinationGroup);
@@ -398,7 +366,7 @@ export function createCelestialBodies(scene) {
   const jupiter = createPlanet(
     "jupiter",
     createJupiterMaps,
-    { roughness: 0.28, metalness: 0.0 },
+    { roughness: 0.7, metalness: 0.0 },
     0.022,
   );
   scene.add(jupiter.inclinationGroup);
@@ -434,7 +402,7 @@ export function createCelestialBodies(scene) {
   const saturn = createPlanet(
     "saturn",
     createSaturnMaps,
-    { roughness: 0.3, metalness: 0.0 },
+    { roughness: 0.7, metalness: 0.0 },
     0.018,
   );
   scene.add(saturn.inclinationGroup);
@@ -446,7 +414,7 @@ export function createCelestialBodies(scene) {
   const uranus = createPlanet(
     "uranus",
     createUranusMaps,
-    { roughness: 0.36, metalness: 0.0 },
+    { roughness: 0.7, metalness: 0.0 },
     0.015,
   );
   scene.add(uranus.inclinationGroup);
@@ -458,7 +426,7 @@ export function createCelestialBodies(scene) {
   const neptune = createPlanet(
     "neptune",
     createNeptuneMaps,
-    { roughness: 0.32, metalness: 0.0 },
+    { roughness: 0.7, metalness: 0.0 },
     0.018,
   );
   scene.add(neptune.inclinationGroup);

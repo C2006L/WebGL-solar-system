@@ -47,11 +47,18 @@ function sunCorona(cfg, radiusMult, colorHex, power, alpha) {
 
 function createSun() {
   const cfg = BODIES.sun;
-  const maps = createSunMaps(2048);
+  const maps = createSunMaps();
   const geo = new THREE.SphereGeometry(cfg.size, 128, 128);
   const mesh = new THREE.Mesh(
     geo,
-    new THREE.MeshBasicMaterial({ map: maps.map }),
+    new THREE.MeshStandardMaterial({
+      map: maps.map,
+      emissiveMap: maps.map,
+      emissive: new THREE.Color(1.0, 0.7, 0.1),
+      emissiveIntensity: 2.0,
+      roughness: 1.0,
+      metalness: 0.0,
+    }),
   );
   mesh.name = cfg.name;
   const innerGlow = sunCorona(cfg, 1.08, "#ff8800", 5.0, 0.45);
@@ -191,12 +198,19 @@ function createPlanet(bodyKey, mapsFn, materialOpts = {}, bumpScaleVal = 0.02) {
 
   const matArgs = {
     map: maps.map,
-    bumpMap: maps.bumpMap,
     bumpScale: bumpScaleVal,
     roughness: 0.45,
     metalness: 0.01,
     ...materialOpts,
   };
+
+  if (maps.bumpMap) {
+    matArgs.bumpMap = maps.bumpMap;
+  }
+
+  if (maps.roughnessMap) {
+    matArgs.roughnessMap = maps.roughnessMap;
+  }
 
   if (cfg.emissiveHex) {
     matArgs.emissive = new THREE.Color(cfg.emissiveHex);
@@ -335,7 +349,7 @@ export function createCelestialBodies(scene) {
   const earth = createPlanet(
     "earth",
     createEarthMaps,
-    { roughness: 0.32, metalness: 0.0 },
+    { roughness: 0.8, metalness: 0.0 },
     0.06,
   );
   scene.add(earth.inclinationGroup);
@@ -344,9 +358,9 @@ export function createCelestialBodies(scene) {
   refs.earth = earth.mesh;
   refs.earthOrbitRadius = BODIES.earth.orbitRadius;
 
-  if (earth.mesh.material.specularMap) {
-    earth.mesh.material.specular = new THREE.Color("#333333");
-    earth.mesh.material.shininess = 15;
+  if (earth.mesh.material.roughnessMap) {
+    earth.mesh.material.roughnessMap = earth.mesh.material.roughnessMap;
+    earth.mesh.material.roughness = 0.8;
     earth.mesh.material.needsUpdate = true;
   }
 

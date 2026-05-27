@@ -1,4 +1,4 @@
-﻿// ============================================================
+// ============================================================
 // textures.js — 程序化纹理 + 凹凸贴图生成
 // ============================================================
 // 每个天体返回 { map: colorTexture, bumpMap: heightTexture }
@@ -29,143 +29,25 @@ function canvasToLinearTexture(canvas) {
   return tex;
 }
 
-// ---- 太阳纹理 + 凹凸贴图 ----
-export function createSunMaps(size = 1024) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-  const h = size / 2;
+// ---- 太阳纹理（v7：真实太阳表面贴图） ----
+const PLANET_TEX_BASE =
+  "https://cdn.jsdelivr.net/gh/mrdoob/three.js@r160/examples/textures/planets/";
 
-  const base = ctx.createRadialGradient(h, h, 0, h, h, h);
-  base.addColorStop(0, "#fffbe0");
-  base.addColorStop(0.3, "#ffe580");
-  base.addColorStop(0.6, "#ff9900");
-  base.addColorStop(0.85, "#e05500");
-  base.addColorStop(1, "#993300");
-  ctx.fillStyle = base;
-  ctx.fillRect(0, 0, size, size);
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 30;
-    d[i] = clamp(d[i] + n, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n * 0.85, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n * 0.5, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  for (let i = 0; i < 80; i++) {
-    const x = Math.random() * size;
-    const y = Math.random() * size;
-    const r = Math.random() * 22 + 4;
-    if (Math.hypot(x - h, y - h) > h * 0.75) continue;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, "rgba(255,255,210,0.5)");
-    g.addColorStop(1, "rgba(255,200,50,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  // 太阳凹凸贴图：明亮的颗粒感（模拟米粒组织 granulation）
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#808080";
-  bctx.fillRect(0, 0, size, size);
-  const bimg = bctx.getImageData(0, 0, size, size);
-  const bd = bimg.data;
-  for (let i = 0; i < bd.length; i += 4) {
-    const n = (Math.random() - 0.5) * 80;
-    bd[i] = bd[i + 1] = bd[i + 2] = clamp(128 + n, 20, 235);
-  }
-  bctx.putImageData(bimg, 0, 0);
-  // 太阳黑子暗区
-  for (let i = 0; i < 25; i++) {
-    const x = Math.random() * size;
-    const y = Math.random() * size;
-    if (Math.hypot(x - h, y - h) > h * 0.65) continue;
-    const r = Math.random() * 18 + 4;
-    const sg = bctx.createRadialGradient(x, y, 0, x, y, r);
-    sg.addColorStop(0, "rgba(30,30,30,0.7)");
-    sg.addColorStop(1, "rgba(128,128,128,0)");
-    bctx.fillStyle = sg;
-    bctx.beginPath();
-    bctx.arc(x, y, r, 0, Math.PI * 2);
-    bctx.fill();
-  }
-
-  return {
-    map: canvasToTexture(c),
-    bumpMap: canvasToLinearTexture(bc),
-  };
+export function createSunMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(PLANET_TEX_BASE + "sun.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
 
-// ---- 月球纹理 + 凹凸贴图 ----
-export function createMoonMaps(size = 1024) {
-  const c = document.createElement("canvas");
-  c.width = c.height = size;
-  const ctx = c.getContext("2d");
-
-  ctx.fillStyle = "#aaaaaa";
-  ctx.fillRect(0, 0, size, size);
-
-  const img = ctx.getImageData(0, 0, size, size);
-  const d = img.data;
-  for (let i = 0; i < d.length; i += 4) {
-    const n = (Math.random() - 0.5) * 30;
-    d[i] = clamp(d[i] + n, 0, 255);
-    d[i + 1] = clamp(d[i + 1] + n, 0, 255);
-    d[i + 2] = clamp(d[i + 2] + n, 0, 255);
-  }
-  ctx.putImageData(img, 0, 0);
-
-  for (let i = 0; i < 8; i++) {
-    const x = Math.random() * size;
-    const y = Math.random() * size;
-    const r = Math.random() * size * 0.12 + size * 0.03;
-    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, "rgba(70,70,70,0.4)");
-    g.addColorStop(0.5, "rgba(90,90,90,0.2)");
-    g.addColorStop(1, "rgba(0,0,0,0)");
-    ctx.fillStyle = g;
-    ctx.beginPath();
-    ctx.arc(x, y, r, 0, Math.PI * 2);
-    ctx.fill();
-  }
-
-  const bc = document.createElement("canvas");
-  bc.width = bc.height = size;
-  const bctx = bc.getContext("2d");
-  bctx.fillStyle = "#808080";
-  bctx.fillRect(0, 0, size, size);
-
-  const bimg = bctx.getImageData(0, 0, size, size);
-  const bd = bimg.data;
-  for (let i = 0; i < bd.length; i += 4) {
-    const n = (Math.random() - 0.5) * 50;
-    bd[i] = bd[i + 1] = bd[i + 2] = clamp(128 + n, 60, 200);
-  }
-  bctx.putImageData(bimg, 0, 0);
-
-  for (let i = 0; i < 350; i++) {
-    const cx = Math.random() * size;
-    const cy = Math.random() * size;
-    const r = Math.random() * 12 + 2;
-    const bg = bctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 1.15);
-    bg.addColorStop(0, "rgba(25,25,25,0.55)");
-    bg.addColorStop(0.55, "rgba(25,25,25,0.25)");
-    bg.addColorStop(0.6, "rgba(230,230,230,0.6)");
-    bg.addColorStop(1, "rgba(128,128,128,0)");
-    bctx.fillStyle = bg;
-    bctx.beginPath();
-    bctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
-    bctx.fill();
-  }
-
-  return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
+// ---- 月球纹理（v7：真实月球贴图） ----
+export function createMoonMaps(_size) {
+  const loader = new THREE.TextureLoader();
+  const map = loader.load(PLANET_TEX_BASE + "moon_1024.jpg");
+  map.colorSpace = THREE.SRGBColorSpace;
+  map.anisotropy = 8;
+  return { map, bumpMap: null };
 }
 
 // ---- 火星纹理 + 凹凸贴图 ----
@@ -857,34 +739,29 @@ export function createNeptuneMaps(size = 1024) {
   return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
 }
 
-// ---- 地球纹理（v6：NASA蓝色弹珠真实贴图 + 法线贴图 + 云层） ----
-// 使用 Three.js 官方提供的 NASA 行星贴图
-// earth_atmos_2048.jpg — 蓝色弹珠地球表面 (equirectangular)
-// earth_normal_2048.jpg — 地形法线贴图 (用于 bumpMap)
-// earth_specular_2048.jpg — 高光贴图 (海洋反光)
-// earth_clouds_1024.png — 云层透明贴图
+// ---- 地球纹理（v7：NASA蓝色弹珠 + roughnessMap替代specularMap + 云层） ----
+// roughnessMap: 海洋粗糙度低(反光) → 深色, 陆地粗糙度高(漫反射) → 浅色
+// 这样海洋自然反光，陆地自然漫反射，无需specularMap的白色高光问题
 
-const EARTH_TEX_BASE = "https://threejs.org/examples/textures/planets/";
-
-export function createEarthMaps() {
+export function createEarthMaps(_size) {
   const loader = new THREE.TextureLoader();
 
-  const map = loader.load(EARTH_TEX_BASE + "earth_atmos_2048.jpg");
+  const map = loader.load(PLANET_TEX_BASE + "earth_atmos_2048.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
   map.anisotropy = 8;
 
-  const bumpMap = loader.load(EARTH_TEX_BASE + "earth_normal_2048.jpg");
+  const bumpMap = loader.load(PLANET_TEX_BASE + "earth_normal_2048.jpg");
   bumpMap.colorSpace = THREE.LinearSRGBColorSpace;
 
-  const specularMap = loader.load(EARTH_TEX_BASE + "earth_specular_2048.jpg");
-  specularMap.colorSpace = THREE.LinearSRGBColorSpace;
+  const roughnessMap = loader.load(PLANET_TEX_BASE + "earth_specular_2048.jpg");
+  roughnessMap.colorSpace = THREE.LinearSRGBColorSpace;
 
-  return { map, bumpMap, specularMap };
+  return { map, bumpMap, roughnessMap };
 }
 
 export function createEarthCloudMap() {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(EARTH_TEX_BASE + "earth_clouds_1024.png");
+  const map = loader.load(PLANET_TEX_BASE + "earth_clouds_1024.png");
   map.colorSpace = THREE.SRGBColorSpace;
   return map;
 }

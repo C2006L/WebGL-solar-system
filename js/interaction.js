@@ -1,12 +1,12 @@
 // ============================================================
-// interaction.js — 鼠标交互（v3：通用化 + 真实数据）
+// interaction.js — 鼠标交互（v4：双击聚焦 + Escape取消 + 标签联动）
 // ============================================================
 
 import * as THREE from "three";
 import { BODIES } from "./constants.js";
 import { showObjectInfo, hideObjectInfo } from "./ui.js";
 
-export function initInteraction(camera, renderer, bodyRefs, controls) {
+export function initInteraction(camera, renderer, bodyRefs, controls, onFocusBody) {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
 
@@ -37,7 +37,8 @@ export function initInteraction(camera, renderer, bodyRefs, controls) {
       event.target.closest("#view-presets") ||
       event.target.closest("#orbit-toggle") ||
       event.target.closest("#object-info") ||
-      event.target.closest(".help-overlay")
+      event.target.closest(".help-overlay") ||
+      event.target.closest("#body-labels")
     )
       return;
 
@@ -59,16 +60,28 @@ export function initInteraction(camera, renderer, bodyRefs, controls) {
   });
 
   window.addEventListener("dblclick", (event) => {
+    if (
+      event.target.closest("#view-presets") ||
+      event.target.closest("#orbit-toggle") ||
+      event.target.closest("#object-info") ||
+      event.target.closest(".help-overlay") ||
+      event.target.closest("#body-labels")
+    )
+      return;
+
     const result = pick(event);
-    if (result && controls) {
-      const worldPos = new THREE.Vector3();
-      result.mesh.getWorldPosition(worldPos);
-      controls.target.copy(worldPos);
-      controls.update();
+    if (result && onFocusBody) {
+      onFocusBody(result.key);
     }
   });
 
   window.addEventListener("contextmenu", () => {
     hideObjectInfo();
+  });
+
+  window.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") {
+      if (onFocusBody) onFocusBody(null);
+    }
   });
 }

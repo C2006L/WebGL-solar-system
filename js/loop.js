@@ -5,6 +5,7 @@
 import * as THREE from "three";
 import { BODIES, SIM } from "./constants.js";
 import { updateSpeedDisplay, updateFPS, highlightPresetButton } from "./ui.js";
+import { updateFocusAnimation } from "./camera.js";
 
 /**
  * 天体更新映射：bodyRefs key → BODIES key
@@ -176,6 +177,8 @@ export function createAnimationLoop(ctx) {
     if (bodyRefs.earthClouds) {
       bodyRefs.earthClouds.rotation.y += 0.0003 * dt;
     }
+
+    updateFocusAnimation(camera, controls, delta);
 
     controls.update();
     renderer.render(scene, camera);

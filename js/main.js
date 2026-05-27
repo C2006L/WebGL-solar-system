@@ -1,9 +1,9 @@
 // ============================================================
-// main.js — 入口（v14：修复所有导入，确保可运行）
+// main.js — 入口（v15：星体聚焦 + 标签导航系统）
 // ============================================================
 
 import * as THREE from "three";
-import { initCamera, switchToPreset, handleResize } from "./camera.js";
+import { initCamera, switchToPreset, handleResize, focusOnBody, clearFocus } from "./camera.js";
 import { createLighting } from "./lighting.js";
 import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
@@ -16,6 +16,9 @@ import {
   hideLoading,
   createViewPresetButtons,
   toggleHelp,
+  createLabelNavigation,
+  highlightLabel,
+  clearLabelHighlight,
 } from "./ui.js";
 import { initInteraction } from "./interaction.js";
 
@@ -59,23 +62,45 @@ scene.add(asteroidBelt);
 const orbitGroup = createAllOrbits(bodyRefs);
 scene.add(orbitGroup);
 
-// ---- 7. 视角预设包装 ----
+// ---- 7. 聚焦回调（双击 & 标签共用） ----
+function onFocusBody(bodyKey) {
+  if (bodyKey === null) {
+    clearFocus();
+    clearLabelHighlight();
+    return;
+  }
+  const mesh = bodyRefs[bodyKey];
+  if (!mesh) return;
+  focusOnBody(camera, controls, mesh, bodyKey);
+  highlightLabel(bodyKey);
+}
+
+// ---- 8. 视角预设包装 ----
 function applyPreset(presetKey) {
   const earthPos =
     presetKey === "followEarth" && bodyRefs.earthGroup
       ? bodyRefs.earthGroup.getWorldPosition(new THREE.Vector3())
       : null;
   switchToPreset(camera, controls, presetKey, earthPos);
+  clearFocus();
+  clearLabelHighlight();
 }
 
-// ---- 8. UI 按钮 ----
+// ---- 9. UI ----
 createViewPresetButtons(applyPreset);
 toggleHelp();
+createLabelNavigation(bodyRefs, onFocusBody);
 
-// ---- 9. 交互 ----
-initInteraction(camera, renderer, bodyRefs, controls);
+// ---- 10. 交互 ----
+initInteraction(camera, renderer, bodyRefs, controls, onFocusBody);
 
-// ---- 10. 启动动画循环 ----
+// ---- 11. 用户手动操控时取消聚焦 ----
+controls.addEventListener('start', () => {
+  clearFocus();
+  clearLabelHighlight();
+});
+
+// ---- 12. 启动动画循环 ----
 const clock = new THREE.Clock();
 const ctx = {
   scene,
@@ -95,7 +120,7 @@ window.addEventListener("resize", () => handleResize(camera, renderer));
 hideLoading();
 loop.start();
 
-console.log('Solar System v14 Ready');
+console.log('Solar System v15 Ready');
 
 } catch (err) {
   console.error('Solar System init error:', err);

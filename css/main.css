@@ -222,3 +222,100 @@ canvas {
     background: rgba(30, 30, 60, 0.8);
     color: #fff;
 }
+
+/* ---- 右侧星体标签导航 ---- */
+#body-labels {
+    position: fixed;
+    right: 16px;
+    top: 230px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    z-index: 30;
+    max-height: calc(100vh - 260px);
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.15) transparent;
+}
+
+#body-labels::-webkit-scrollbar {
+    width: 4px;
+}
+
+#body-labels::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+}
+
+.body-label {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    padding: 5px 10px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.25s;
+    background: rgba(8, 8, 24, 0.45);
+    border: 1px solid transparent;
+    user-select: none;
+}
+
+.body-label:hover {
+    background: rgba(30, 30, 60, 0.75);
+    border-color: rgba(255, 255, 255, 0.18);
+}
+
+.body-label.active {
+    background: rgba(255, 180, 0, 0.15);
+    border-color: rgba(255, 180, 0, 0.45);
+}
+
+.body-label.moon {
+    padding-left: 22px;
+}
+
+.body-label-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    flex-shrink: 0;
+    box-shadow: 0 0 4px currentColor;
+}
+
+.body-label-icon {
+    font-size: 10px;
+    color: #666;
+    flex-shrink: 0;
+    width: 12px;
+    text-align: center;
+}
+
+.body-label-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+}
+
+.body-label-name {
+    font-size: 11px;
+    color: #bbb;
+    letter-spacing: 0.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.body-label.active .body-label-name {
+    color: #ffb800;
+}
+
+.body-label-type {
+    font-size: 9px;
+    color: #555;
+    text-transform: capitalize;
+    white-space: nowrap;
+}
+
+.body-label.active .body-label-type {
+    color: #887730;
+}

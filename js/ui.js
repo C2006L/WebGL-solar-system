@@ -1,6 +1,8 @@
 // ============================================================
-// ui.js — UI 面板管理（v3：DOM-safe + 按钮联动）
+// ui.js — UI 面板管理（v4：标签导航 + 聚焦联动）
 // ============================================================
+
+import { BODIES } from './constants.js';
 
 export function updateSpeedDisplay(value) {
     const el = document.getElementById('speed-display');
@@ -12,9 +14,6 @@ export function updateFPS(fps) {
     if (el) el.textContent = 'FPS: ' + fps;
 }
 
-/**
- * 高亮指定预设按钮（键盘切换视角时同步 UI）
- */
 export function highlightPresetButton(presetKey) {
     const container = document.getElementById('view-presets');
     if (!container) return;
@@ -75,9 +74,10 @@ export function toggleHelp() {
         <div><b>1-4</b> — Camera presets (Free/Top/Earth/Sun)</div>
         <div><b>O</b> — Toggle orbit lines</div>
         <div><b>H</b> — Toggle this help</div>
+        <div><b>Esc</b> — Cancel focus</div>
         <div class="section-title">Mouse</div>
         <div><b>Click planet</b> — Show info</div>
-        <div><b>Double-click</b> — Focus on object</div>
+        <div><b>Double-click</b> — Focus on body</div>
         <div style="margin-top:14px;color:#777;font-size:11px;">Click anywhere to close</div>
     `;
     div.addEventListener('click', () => div.remove());
@@ -132,7 +132,97 @@ export function createOrbitToggleButton(onToggle) {
     document.body.appendChild(container);
 }
 
-// DOM 就绪后才绑定关闭按钮
+// ---- 右侧星体标签导航系统 ----
+
+const LABEL_ORDER = [
+    { key: 'sun', indent: 0 },
+    { key: 'mercury', indent: 0 },
+    { key: 'venus', indent: 0 },
+    { key: 'earth', indent: 0 },
+    { key: 'moon', indent: 1 },
+    { key: 'mars', indent: 0 },
+    { key: 'jupiter', indent: 0 },
+    { key: 'io', indent: 1 },
+    { key: 'europa', indent: 1 },
+    { key: 'ganymede', indent: 1 },
+    { key: 'callisto', indent: 1 },
+    { key: 'saturn', indent: 0 },
+    { key: 'uranus', indent: 0 },
+    { key: 'neptune', indent: 0 },
+];
+
+const TYPE_ICONS = { star: '★', planet: '●', moon: '○' };
+
+let labelContainer = null;
+
+export function createLabelNavigation(bodyRefs, onFocusBody) {
+    labelContainer = document.createElement('div');
+    labelContainer.id = 'body-labels';
+
+    for (const item of LABEL_ORDER) {
+        const cfg = BODIES[item.key];
+        if (!cfg || !bodyRefs[item.key]) continue;
+
+        const label = document.createElement('div');
+        label.className = 'body-label' + (item.indent > 0 ? ' moon' : '');
+        label.dataset.key = item.key;
+
+        const dot = document.createElement('span');
+        dot.className = 'body-label-dot';
+        dot.style.backgroundColor = cfg.color;
+
+        const icon = document.createElement('span');
+        icon.className = 'body-label-icon';
+        icon.textContent = TYPE_ICONS[cfg.type] || '●';
+
+        const info = document.createElement('div');
+        info.className = 'body-label-info';
+
+        const nameEl = document.createElement('div');
+        nameEl.className = 'body-label-name';
+        nameEl.textContent = cfg.name;
+
+        const typeEl = document.createElement('div');
+        typeEl.className = 'body-label-type';
+        typeEl.textContent = cfg.type + (cfg.realRadius ? ' · ' + formatRadius(cfg.realRadius) : '');
+
+        info.appendChild(nameEl);
+        info.appendChild(typeEl);
+
+        label.appendChild(dot);
+        label.appendChild(icon);
+        label.appendChild(info);
+
+        label.addEventListener('click', () => {
+            if (onFocusBody) onFocusBody(item.key);
+        });
+
+        labelContainer.appendChild(label);
+    }
+
+    document.body.appendChild(labelContainer);
+    return labelContainer;
+}
+
+function formatRadius(km) {
+    if (km >= 10000) return (km / 1000).toFixed(0) + 'k km';
+    return km.toLocaleString() + ' km';
+}
+
+export function highlightLabel(bodyKey) {
+    if (!labelContainer) return;
+    labelContainer.querySelectorAll('.body-label').forEach(el => {
+        el.classList.toggle('active', el.dataset.key === bodyKey);
+    });
+}
+
+export function clearLabelHighlight() {
+    if (!labelContainer) return;
+    labelContainer.querySelectorAll('.body-label').forEach(el => {
+        el.classList.remove('active');
+    });
+}
+
 function bindCloseBtn() {
     const btn = document.getElementById('object-info-close');
     if (btn) btn.addEventListener('click', hideObjectInfo);

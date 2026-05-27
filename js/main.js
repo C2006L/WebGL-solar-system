@@ -3,12 +3,11 @@
 // ============================================================
 
 import * as THREE from "three";
-import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { initCamera, switchToPreset, handleResize } from "./camera.js";
 import { createLighting } from "./lighting.js";
 import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
-import { createStarfield } from "./starfield.js";
+import { createStarField } from "./starfield.js";
 import { createAsteroidBelt } from "./asteroid-belt.js";
 import {
   createAnimationLoop,
@@ -38,8 +37,7 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.15;
 document.body.appendChild(renderer.domElement);
 
-const camera = initCamera(renderer.domElement);
-const controls = new OrbitControls(camera, renderer.domElement);
+const { camera, controls } = initCamera(renderer.domElement);
 
 // ---- 2. 灯光 ----
 const { ambient, hemiLight, sunLight } = createLighting();
@@ -48,7 +46,7 @@ scene.add(hemiLight);
 scene.add(sunLight);
 
 // ---- 3. 星空 ----
-scene.add(createStarfield());
+scene.add(createStarField());
 
 // ---- 4. 天体模型 ----
 const bodyRefs = createCelestialBodies(scene);

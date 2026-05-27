@@ -21,6 +21,10 @@ const BODY_UPDATE_MAP = {
   saturn: { body: "saturn", orbit: "saturnOrbitGroup", type: "both" },
   uranus: { body: "uranus", orbit: "uranusOrbitGroup", type: "both" },
   neptune: { body: "neptune", orbit: "neptuneOrbitGroup", type: "both" },
+  io: { body: "io", orbit: "ioOrbitGroup", type: "both" },
+  europa: { body: "europa", orbit: "europaOrbitGroup", type: "both" },
+  ganymede: { body: "ganymede", orbit: "ganymedeOrbitGroup", type: "both" },
+  callisto: { body: "callisto", orbit: "callistoOrbitGroup", type: "both" },
 };
 
 const PRESET_KEY_MAP = {

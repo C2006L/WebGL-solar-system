@@ -1,5 +1,9 @@
 // ============================================================
-// constants.js — 全局配置（v3：完整 8 行星 + 科学数据）
+// constants.js — v9：科学精确优化（IAU轨道 + 太阳比例 + 木星卫星）
+// ============================================================
+// 天体尺寸按 SCALE 视觉压缩；轨道周期和倾角参考 IAU 2022 数据
+// 太阳:地球直径比 ≈ 6.0:0.65=9.23:1 (真实109:1的8.5%, 受SCALE制约取视觉最优)
+// 月球:地球距离比 ≈ 3.5:0.65=5.38 Earth radii (真实60.3, 受SCALE制约)
 // ============================================================
 
 export const SIM = {
@@ -11,34 +15,26 @@ export const SIM = {
     ROTATION_SPEED_SCALE: 0.03,
 };
 
-// ---- 天体物理参数 ----
-// size          : 可视化半径（对数压缩，保持相对顺序）
-// orbitRadius   : 公转轨道半径 = realAU × SCALE
-// orbitSpeed    : 角速度 ∝ 1/realPeriod
-// orbitalIncl   : 轨道倾角（度，相对黄道面）
-// axialTilt     : 自转轴倾角（度）
-// selfRotationSpeed: 2π/自转周期(天), 动画中乘 ROTATION_SPEED_SCALE
-// 数据来源      : NASA Planetary Fact Sheet
-// ============================================================
-const SCALE = 10; // 1 AU = 10 单位
+const SCALE = 10;
 
 export const BODIES = {
     sun: {
-        name: 'Sun', size: 3.5, orbitRadius: 0, orbitSpeed: 0,
+        name: 'Sun', size: 6.0, orbitRadius: 0, orbitSpeed: 0,
         orbitalIncl: 0, axialTilt: 7.25,
         selfRotationSpeed: 0.15, type: 'star',
         realAU: 0, realPeriod: 0, realRadius: 696340,
         color: '#fffbe0',
-        description: 'G-type main-sequence star (G2V). Surface temp: 5,778 K. Contains 99.86% of Solar System mass.',
+        emissiveHex: null, emissiveIntensity: 0,
+        description: 'G-type main-sequence star (G2V). Surface temp: 5,778 K. 99.86% of Solar System mass.',
     },
     mercury: {
-        name: 'Mercury', size: 0.18, orbitRadius: 0.387 * SCALE,
+        name: 'Mercury', size: 0.22, orbitRadius: 0.387 * SCALE,
         orbitSpeed: 2 * Math.PI / (88.0),
         orbitalIncl: 7.0, axialTilt: 0.03,
         selfRotationSpeed: 2 * Math.PI / (58.6),
         type: 'planet', realAU: 0.387, realPeriod: 88.0, realRadius: 2440,
-        color: '#b0a090',
-        description: 'Smallest planet. No atmosphere. Extreme temperature range: -180°C to 430°C.',
+        color: '#b0a090', emissiveHex: '#3a3028', emissiveIntensity: 0.18,
+        description: 'Smallest planet. No atmosphere. Temperature range: -180°C to 430°C.',
     },
     venus: {
         name: 'Venus', size: 0.60, orbitRadius: 0.723 * SCALE,
@@ -46,8 +42,8 @@ export const BODIES = {
         orbitalIncl: 3.4, axialTilt: 177.4,
         selfRotationSpeed: 2 * Math.PI / (243.0),
         type: 'planet', realAU: 0.723, realPeriod: 224.7, realRadius: 6052,
-        color: '#e8d5a8',
-        description: 'Hottest planet (462°C). Thick CO₂ atmosphere. Retrograde rotation (sun rises in west).',
+        color: '#e8d5a8', emissiveHex: '#5a4a28', emissiveIntensity: 0.22,
+        description: 'Hottest planet (462°C). Thick CO₂ atmosphere. Retrograde rotation.',
     },
     earth: {
         name: 'Earth', size: 0.65, orbitRadius: 1.0 * SCALE,
@@ -55,17 +51,17 @@ export const BODIES = {
         orbitalIncl: 0.0, axialTilt: 23.44,
         selfRotationSpeed: 2 * Math.PI / (1.0),
         type: 'planet', realAU: 1.0, realPeriod: 365.25, realRadius: 6371,
-        color: '#1a6fb5',
-        description: 'Only known planet with life. 71% ocean surface. Atmosphere: N₂ 78%, O₂ 21%.',
+        color: '#1a6fb5', emissiveHex: '#0a2255', emissiveIntensity: 0.20,
+        description: 'Only known planet with life. 71% ocean. Atmosphere: N₂ 78%, O₂ 21%.',
     },
     moon: {
-        name: 'Moon', size: 0.18, orbitRadius: 2.3,
+        name: 'Moon', size: 0.18, orbitRadius: 3.5,
         orbitSpeed: 2 * Math.PI / (27.3),
         orbitalIncl: 5.14, axialTilt: 6.68,
         selfRotationSpeed: 2 * Math.PI / (27.3),
         type: 'moon', realAU: 0, realPeriod: 27.3, realRadius: 1737,
-        color: '#aaaaaa',
-        description: 'Earth\'s only natural satellite. Tidally locked. Surface: basaltic maria + anorthositic highlands.',
+        color: '#aaaaaa', emissiveHex: '#2a2a2a', emissiveIntensity: 0.12,
+        description: 'Earth only natural satellite. Tidally locked. Basaltic maria + anorthositic highlands.',
     },
     mars: {
         name: 'Mars', size: 0.40, orbitRadius: 1.524 * SCALE,
@@ -73,8 +69,8 @@ export const BODIES = {
         orbitalIncl: 1.85, axialTilt: 25.19,
         selfRotationSpeed: 2 * Math.PI / (1.026),
         type: 'planet', realAU: 1.524, realPeriod: 687.0, realRadius: 3390,
-        color: '#c1440e',
-        description: 'The Red Planet. Iron oxide surface. Olympus Mons: tallest volcano (21.9 km).',
+        color: '#c1440e', emissiveHex: '#401208', emissiveIntensity: 0.20,
+        description: 'Red Planet. Iron oxide surface. Olympus Mons (21.9 km).',
     },
     jupiter: {
         name: 'Jupiter', size: 1.80, orbitRadius: 5.203 * SCALE,
@@ -82,8 +78,8 @@ export const BODIES = {
         orbitalIncl: 1.3, axialTilt: 3.13,
         selfRotationSpeed: 2 * Math.PI / (0.414),
         type: 'planet', realAU: 5.203, realPeriod: 4331, realRadius: 69911,
-        color: '#d4a574',
-        description: 'Largest planet. Great Red Spot: storm lasting 350+ years. 95 known moons.',
+        color: '#d4a574', emissiveHex: '#3a2210', emissiveIntensity: 0.15,
+        description: 'Largest planet. Great Red Spot: 350+ years. 95 known moons.',
     },
     saturn: {
         name: 'Saturn', size: 1.55, orbitRadius: 9.537 * SCALE,
@@ -91,8 +87,8 @@ export const BODIES = {
         orbitalIncl: 2.5, axialTilt: 26.73,
         selfRotationSpeed: 2 * Math.PI / (0.444),
         type: 'planet', realAU: 9.537, realPeriod: 10747, realRadius: 58232,
-        color: '#e8d5a0',
-        description: 'Famous ring system (ice + rock). Least dense planet (could float in water).',
+        color: '#e8d5a0', emissiveHex: '#4a3820', emissiveIntensity: 0.16,
+        description: 'Famous ring system (ice+rock). Least dense planet.',
     },
     uranus: {
         name: 'Uranus', size: 0.95, orbitRadius: 19.19 * SCALE,
@@ -100,8 +96,8 @@ export const BODIES = {
         orbitalIncl: 0.77, axialTilt: 97.77,
         selfRotationSpeed: 2 * Math.PI / (0.718),
         type: 'planet', realAU: 19.19, realPeriod: 30589, realRadius: 25362,
-        color: '#7ec8e3',
-        description: 'Ice giant. Rotates on its side (98° tilt). Methane atmosphere absorbs red light → cyan color.',
+        color: '#7ec8e3', emissiveHex: '#0a3040', emissiveIntensity: 0.18,
+        description: 'Ice giant. Rotates on its side (98°). Methane → cyan color.',
     },
     neptune: {
         name: 'Neptune', size: 0.90, orbitRadius: 30.07 * SCALE,
@@ -109,12 +105,48 @@ export const BODIES = {
         orbitalIncl: 1.77, axialTilt: 28.32,
         selfRotationSpeed: 2 * Math.PI / (0.671),
         type: 'planet', realAU: 30.07, realPeriod: 59800, realRadius: 24622,
-        color: '#3355cc',
-        description: 'Windiest planet (2,100 km/h). Last true planet. Discovered mathematically (1846).',
+        color: '#3355cc', emissiveHex: '#081040', emissiveIntensity: 0.22,
+        description: 'Windiest planet (2,100 km/h). Discovered mathematically (1846).',
+    },
+    // ---- 木星伽利略卫星 (NASA JPL HORIZONS 2025) ----
+    io: {
+        name: 'Io', size: 0.08, orbitRadius: 3.5,
+        orbitSpeed: 2 * Math.PI / (1.77),
+        orbitalIncl: 0.04, axialTilt: 0,
+        selfRotationSpeed: 2 * Math.PI / (1.77),
+        type: 'moon', realAU: 0, realPeriod: 1.77, realRadius: 1821,
+        color: '#e8d050', emissiveHex: '#3a3010', emissiveIntensity: 0.18,
+        description: 'Most volcanically active body. 400+ volcanoes. Orbital resonance with Europa & Ganymede (4:2:1).',
+    },
+    europa: {
+        name: 'Europa', size: 0.07, orbitRadius: 5.0,
+        orbitSpeed: 2 * Math.PI / (3.55),
+        orbitalIncl: 0.47, axialTilt: 0,
+        selfRotationSpeed: 2 * Math.PI / (3.55),
+        type: 'moon', realAU: 0, realPeriod: 3.55, realRadius: 1561,
+        color: '#e0ddd8', emissiveHex: '#3a3a35', emissiveIntensity: 0.15,
+        description: 'Icy crust. Subsurface global ocean. Prime target for astrobiology.',
+    },
+    ganymede: {
+        name: 'Ganymede', size: 0.12, orbitRadius: 7.0,
+        orbitSpeed: 2 * Math.PI / (7.15),
+        orbitalIncl: 0.20, axialTilt: 0,
+        selfRotationSpeed: 2 * Math.PI / (7.15),
+        type: 'moon', realAU: 0, realPeriod: 7.15, realRadius: 2634,
+        color: '#c8c0b0', emissiveHex: '#302828', emissiveIntensity: 0.14,
+        description: 'Largest moon in Solar System. Only moon with intrinsic magnetic field.',
+    },
+    callisto: {
+        name: 'Callisto', size: 0.10, orbitRadius: 9.0,
+        orbitSpeed: 2 * Math.PI / (16.69),
+        orbitalIncl: 0.19, axialTilt: 0,
+        selfRotationSpeed: 2 * Math.PI / (16.69),
+        type: 'moon', realAU: 0, realPeriod: 16.69, realRadius: 2410,
+        color: '#706860', emissiveHex: '#1a1612', emissiveIntensity: 0.10,
+        description: 'Most heavily cratered body. Ancient surface (>4 Gyr). Valhalla multi-ring impact basin.',
     },
 };
 
-// ---- 相机预设 ----
 export const CAMERA_PRESETS = {
     free:    { name: 'Free Orbit',   position: [0, 30, 50], target: [0, 0, 0] },
     topDown: { name: 'Top Down',     position: [0, 45, 0.5], target: [0, 0, 0] },
@@ -122,7 +154,6 @@ export const CAMERA_PRESETS = {
     sunView: { name: 'Sun View',     position: [2, 1.5, 6], target: [0, 0, 0] },
 };
 
-// ---- 场景常量 ----
 export const SCENE = {
     STAR_COUNT: 3000,
     STAR_RADIUS: 350,

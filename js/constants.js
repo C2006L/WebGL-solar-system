@@ -42,7 +42,7 @@ export const BODIES = {
         name: 'Venus', size: 0.60, orbitRadius: 0.723 * SCALE,
         orbitSpeed: 2 * Math.PI / (224.7),
         orbitalIncl: 3.4, axialTilt: 177.4,
-        selfRotationSpeed: -(2 * Math.PI / (243.0)),
+        selfRotationSpeed: 2 * Math.PI / (243.0),
         type: 'planet', realAU: 0.723, realPeriod: 224.7, realRadius: 6052,
         color: '#e8d5a8',
         description: 'Hottest planet (462°C). Thick CO₂ atmosphere. Retrograde rotation (sun rises in west).',
@@ -126,6 +126,6 @@ export const SCENE = {
     STAR_RADIUS: 250,
     ORBIT_SEGMENTS: 256,
     ASTEROID_COUNT: 3000,
-    ASTEROID_MIN_R: 2.1 * SCALE,
-    ASTEROID_MAX_R: 3.3 * SCALE,
+    ASTEROID_MIN_R: 1.6 * SCALE,
+    ASTEROID_MAX_R: 4.5 * SCALE,
 };

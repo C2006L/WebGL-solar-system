@@ -32,8 +32,9 @@ document.body.appendChild(renderer.domElement);
 const { camera, controls } = initCamera(renderer.domElement);
 
 // ---- 2. 灯光 ----
-const { ambient, sunLight } = createLighting();
+const { ambient, hemiLight, sunLight } = createLighting();
 scene.add(ambient);
+scene.add(hemiLight);
 scene.add(sunLight);
 
 // ---- 3. 星空 ----
@@ -43,7 +44,8 @@ scene.add(createStarField());
 const bodyRefs = createCelestialBodies(scene);
 
 // ---- 5. 小行星带 ----
-scene.add(createAsteroidBelt());
+const asteroidBelt = createAsteroidBelt();
+scene.add(asteroidBelt);
 
 // ---- 6. 轨道线 ----
 const orbitLines = createAllOrbits(bodyRefs);
@@ -68,7 +70,7 @@ initInteraction(camera, renderer, bodyRefs, controls);
 // ---- 10. 上下文 & 启动 ----
 const clock = new THREE.Clock();
 const ctx = {
-    scene, camera, renderer, controls, bodyRefs, orbitLines,
+    scene, camera, renderer, controls, bodyRefs, orbitLines, asteroidBelt,
     clock, toggleHelp, switchToPreset: applyPreset,
 };
 const loop = createAnimationLoop(ctx);

@@ -94,28 +94,51 @@ function createSun() {
     return { mesh, innerGlow, outerGlow };
 }
 
-// ---- 土星环 ----
+// ---- 土星环（v3：Cassini Division + 多层B/A/C环） ----
 function createSaturnRing(planetSize) {
-    const innerR = planetSize * 1.4;
-    const outerR = planetSize * 2.35;
-    const geo = new THREE.RingGeometry(innerR, outerR, 128);
+    const innerR = planetSize * 1.3;
+    const outerR = planetSize * 2.2;
+    const geo = new THREE.RingGeometry(innerR, outerR, 192);
     geo.rotateX(-Math.PI / 2);
 
     const ringCanvas = document.createElement('canvas');
-    ringCanvas.width = 512;
+    ringCanvas.width = 1024;
     ringCanvas.height = 64;
     const rctx = ringCanvas.getContext('2d');
-    const ringGrad = rctx.createLinearGradient(0, 0, 512, 0);
-    ringGrad.addColorStop(0, 'rgba(210, 190, 150, 0.3)');
-    ringGrad.addColorStop(0.15, 'rgba(240, 220, 180, 0.85)');
-    ringGrad.addColorStop(0.3, 'rgba(200, 180, 140, 0.7)');
-    ringGrad.addColorStop(0.45, 'rgba(255, 235, 200, 0.9)');
-    ringGrad.addColorStop(0.55, 'rgba(220, 200, 160, 0.6)');
-    ringGrad.addColorStop(0.7, 'rgba(240, 220, 180, 0.75)');
-    ringGrad.addColorStop(0.85, 'rgba(180, 160, 120, 0.4)');
-    ringGrad.addColorStop(1, 'rgba(150, 130, 100, 0.1)');
+
+    const ringGrad = rctx.createLinearGradient(0, 0, 1024, 0);
+    // C环（内层淡环）
+    ringGrad.addColorStop(0, 'rgba(160, 145, 120, 0.15)');
+    ringGrad.addColorStop(0.06, 'rgba(190, 170, 140, 0.5)');
+    ringGrad.addColorStop(0.12, 'rgba(160, 145, 120, 0.2)');
+    // B环（最亮最密）
+    ringGrad.addColorStop(0.18, 'rgba(240, 220, 180, 0.75)');
+    ringGrad.addColorStop(0.28, 'rgba(255, 240, 200, 0.95)');
+    ringGrad.addColorStop(0.38, 'rgba(240, 220, 180, 0.88)');
+    ringGrad.addColorStop(0.44, 'rgba(220, 200, 160, 0.7)');
+    // Cassini Division（暗色间隙）
+    ringGrad.addColorStop(0.48, 'rgba(60, 50, 35, 0.3)');
+    ringGrad.addColorStop(0.52, 'rgba(50, 40, 30, 0.25)');
+    ringGrad.addColorStop(0.56, 'rgba(80, 65, 45, 0.35)');
+    // A环（外层中等亮度）
+    ringGrad.addColorStop(0.62, 'rgba(230, 210, 175, 0.75)');
+    ringGrad.addColorStop(0.72, 'rgba(220, 200, 165, 0.7)');
+    ringGrad.addColorStop(0.82, 'rgba(200, 180, 145, 0.55)');
+    ringGrad.addColorStop(0.90, 'rgba(170, 150, 120, 0.3)');
+    ringGrad.addColorStop(1, 'rgba(120, 100, 80, 0.08)');
     rctx.fillStyle = ringGrad;
-    rctx.fillRect(0, 0, 512, 64);
+    rctx.fillRect(0, 0, 1024, 64);
+
+    // 环带细节纹理条纹
+    for (let i = 0; i < 200; i++) {
+        const x = Math.random() * 1024;
+        const alpha = 0.03 + Math.random() * 0.08;
+        const bright = Math.random() > 0.5;
+        rctx.fillStyle = bright
+            ? `rgba(255,240,210,${alpha})`
+            : `rgba(150,120,90,${alpha})`;
+        rctx.fillRect(x, 0, 2 + Math.random() * 3, 64);
+    }
 
     const ringTex = new THREE.Texture(ringCanvas);
     ringTex.colorSpace = THREE.SRGBColorSpace;
@@ -125,10 +148,10 @@ function createSaturnRing(planetSize) {
     const mat = new THREE.MeshStandardMaterial({
         map: ringTex,
         side: THREE.DoubleSide,
-        roughness: 0.75,
-        metalness: 0.05,
+        roughness: 0.7,
+        metalness: 0.08,
         transparent: true,
-        opacity: 0.85,
+        opacity: 0.88,
         depthWrite: true,
     });
 
@@ -136,6 +159,45 @@ function createSaturnRing(planetSize) {
     ring.castShadow = true;
     ring.receiveShadow = true;
     ring.name = 'Saturn_Ring';
+    return ring;
+}
+
+// ---- 天王星环（极细，淡色） ----
+function createUranusRing(planetSize) {
+    const innerR = planetSize * 1.3;
+    const outerR = planetSize * 1.45;
+    const geo = new THREE.RingGeometry(innerR, outerR, 64);
+    geo.rotateX(-Math.PI / 2);
+
+    const ringCanvas = document.createElement('canvas');
+    ringCanvas.width = 256;
+    ringCanvas.height = 16;
+    const rctx = ringCanvas.getContext('2d');
+    const g = rctx.createLinearGradient(0, 0, 256, 0);
+    g.addColorStop(0, 'rgba(160, 200, 220, 0.2)');
+    g.addColorStop(0.3, 'rgba(180, 210, 230, 0.5)');
+    g.addColorStop(0.5, 'rgba(200, 220, 235, 0.6)');
+    g.addColorStop(0.7, 'rgba(170, 200, 220, 0.4)');
+    g.addColorStop(1, 'rgba(140, 180, 200, 0.1)');
+    rctx.fillStyle = g;
+    rctx.fillRect(0, 0, 256, 16);
+
+    const ringTex = new THREE.Texture(ringCanvas);
+    ringTex.colorSpace = THREE.SRGBColorSpace;
+    ringTex.needsUpdate = true;
+
+    const mat = new THREE.MeshStandardMaterial({
+        map: ringTex,
+        side: THREE.DoubleSide,
+        roughness: 0.8,
+        metalness: 0.02,
+        transparent: true,
+        opacity: 0.7,
+        depthWrite: true,
+    });
+
+    const ring = new THREE.Mesh(geo, mat);
+    ring.name = 'Uranus_Ring';
     return ring;
 }
 
@@ -178,6 +240,11 @@ function createPlanet(bodyKey, mapsFn, materialOpts = {}, bumpScaleVal = 0.02) {
 
     if (bodyKey === 'saturn') {
         const ring = createSaturnRing(cfg.size);
+        mesh.add(ring);
+        extras.ring = ring;
+    }
+    if (bodyKey === 'uranus') {
+        const ring = createUranusRing(cfg.size);
         mesh.add(ring);
         extras.ring = ring;
     }
@@ -286,6 +353,7 @@ export function createCelestialBodies(scene) {
     refs.uranusOrbitGroup = uranus.orbitGroup;
     refs.uranus = uranus.mesh;
     refs.uranusOrbitRadius = BODIES.uranus.orbitRadius;
+    refs.uranusRing = uranus.extras.ring;
 
     // 海王星
     const neptune = createPlanet('neptune', createNeptuneMaps, { roughness: 0.58 }, 0.010);

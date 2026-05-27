@@ -395,25 +395,31 @@ export function createNeptuneMaps(size = 1024) {
   return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
 }
 
-// ---- 地球纹理 + 凹凸贴图 ----
+// ---- 地球纹理 + 凹凸贴图（v3：高精度陆地 + 深海渐变） ----
 export function createEarthMaps(size = 1024) {
   const c = document.createElement("canvas");
   c.width = c.height = size;
   const ctx = c.getContext("2d");
   const h = size / 2;
 
-  const oceanGrad = ctx.createRadialGradient(h, h, 0, h, h, h);
-  oceanGrad.addColorStop(0, "#0d3b66");
-  oceanGrad.addColorStop(0.4, "#155d8a");
-  oceanGrad.addColorStop(0.7, "#1a7ab5");
-  oceanGrad.addColorStop(1, "#0f4c75");
+  // 深海蓝色基底层
+  const oceanGrad = ctx.createRadialGradient(h * 0.5, h * 0.5, 0, h, h, h * 1.1);
+  oceanGrad.addColorStop(0, "#0a2244");
+  oceanGrad.addColorStop(0.35, "#0d3366");
+  oceanGrad.addColorStop(0.6, "#134488");
+  oceanGrad.addColorStop(0.85, "#1a5599");
+  oceanGrad.addColorStop(1, "#1a5599");
   ctx.fillStyle = oceanGrad;
   ctx.fillRect(0, 0, size, size);
 
   const oceanImg = ctx.getImageData(0, 0, size, size);
   const od = oceanImg.data;
+  const h2 = size / 2;
   for (let i = 0; i < od.length; i += 4) {
-    const n = (Math.random() - 0.5) * 14;
+    const x = (i / 4) % size;
+    const y = Math.floor((i / 4) / size);
+    const dist = Math.hypot(x - h2, y - h2) / h2;
+    const n = (Math.random() - 0.5) * 10;
     od[i] = clamp(od[i] + n * 0.3, 0, 255);
     od[i + 1] = clamp(od[i + 1] + n * 0.6, 0, 255);
     od[i + 2] = clamp(od[i + 2] + n, 0, 255);
@@ -421,21 +427,40 @@ export function createEarthMaps(size = 1024) {
   ctx.putImageData(oceanImg, 0, 0);
 
   const continents = [
-    { cx: 0.22, cy: 0.32, rx: 0.12, ry: 0.16, color: "#3a7d3a" },
-    { cx: 0.48, cy: 0.3, rx: 0.14, ry: 0.15, color: "#4a8c35" },
-    { cx: 0.38, cy: 0.52, rx: 0.09, ry: 0.12, color: "#6b8c30" },
-    { cx: 0.68, cy: 0.55, rx: 0.08, ry: 0.1, color: "#558c3a" },
-    { cx: 0.52, cy: 0.18, rx: 0.1, ry: 0.07, color: "#7a9a40" },
-    { cx: 0.28, cy: 0.68, rx: 0.06, ry: 0.1, color: "#4d8c35" },
-    { cx: 0.62, cy: 0.42, rx: 0.08, ry: 0.09, color: "#38702a" },
-    { cx: 0.78, cy: 0.72, rx: 0.05, ry: 0.06, color: "#b8956a" },
-    { cx: 0.14, cy: 0.14, rx: 0.07, ry: 0.06, color: "#6d9040" },
-    { cx: 0.42, cy: 0.72, rx: 0.05, ry: 0.07, color: "#4e9038" },
-    { cx: 0.85, cy: 0.35, rx: 0.06, ry: 0.08, color: "#c4a265" },
-    { cx: 0.75, cy: 0.25, rx: 0.04, ry: 0.05, color: "#8a7d55" },
+    // 北美洲
+    { cx: 0.18, cy: 0.22, rx: 0.09, ry: 0.14, color: "#3a8c2a", mt: "plains" },
+    { cx: 0.12, cy: 0.18, rx: 0.06, ry: 0.10, color: "#5a9c40", mt: "forest" },
+    { cx: 0.24, cy: 0.28, rx: 0.04, ry: 0.06, color: "#4a8c30", mt: "plains" },
+    // 南美洲
+    { cx: 0.28, cy: 0.62, rx: 0.06, ry: 0.12, color: "#2d8a28", mt: "forest" },
+    { cx: 0.30, cy: 0.55, rx: 0.04, ry: 0.07, color: "#50993a", mt: "plains" },
+    // 欧洲
+    { cx: 0.44, cy: 0.20, rx: 0.08, ry: 0.10, color: "#6d9a3a", mt: "plains" },
+    { cx: 0.42, cy: 0.26, rx: 0.05, ry: 0.06, color: "#7d9940", mt: "plains" },
+    // 非洲
+    { cx: 0.46, cy: 0.52, rx: 0.09, ry: 0.16, color: "#8a7d2a", mt: "desert" },
+    { cx: 0.48, cy: 0.42, rx: 0.06, ry: 0.08, color: "#9a8a30", mt: "desert" },
+    { cx: 0.44, cy: 0.60, rx: 0.05, ry: 0.06, color: "#4a7a28", mt: "forest" },
+    // 亚洲
+    { cx: 0.62, cy: 0.22, rx: 0.16, ry: 0.12, color: "#6a8a30", mt: "plains" },
+    { cx: 0.68, cy: 0.28, rx: 0.08, ry: 0.06, color: "#b0a040", mt: "desert" },
+    { cx: 0.56, cy: 0.32, rx: 0.06, ry: 0.06, color: "#80993a", mt: "plains" },
+    { cx: 0.75, cy: 0.36, rx: 0.05, ry: 0.05, color: "#609030", mt: "forest" },
+    // 东南亚群岛
+    { cx: 0.74, cy: 0.44, rx: 0.04, ry: 0.06, color: "#3a8828", mt: "forest" },
+    { cx: 0.78, cy: 0.46, rx: 0.03, ry: 0.04, color: "#3a8025", mt: "forest" },
+    // 大洋洲
+    { cx: 0.82, cy: 0.58, rx: 0.05, ry: 0.06, color: "#b09040", mt: "desert" },
+    // 日本
+    { cx: 0.78, cy: 0.28, rx: 0.02, ry: 0.04, color: "#609030", mt: "forest" },
+    // 中美洲
+    { cx: 0.22, cy: 0.46, rx: 0.02, ry: 0.03, color: "#3a8828", mt: "forest" },
+    // 格陵兰
+    { cx: 0.34, cy: 0.1, rx: 0.04, ry: 0.04, color: "#dde8e0", mt: "ice" },
+    // 马达加斯加
+    { cx: 0.52, cy: 0.68, rx: 0.02, ry: 0.04, color: "#4a8830", mt: "forest" },
   ];
 
-  // 凹凸贴图 Canvas（同时记录大陆区域的掩码）
   const bc = document.createElement("canvas");
   bc.width = bc.height = size;
   const bctx = bc.getContext("2d");
@@ -445,69 +470,52 @@ export function createEarthMaps(size = 1024) {
   continents.forEach((area) => {
     ctx.save();
     ctx.beginPath();
-    ctx.ellipse(
-      area.cx * size,
-      area.cy * size,
-      area.rx * size,
-      area.ry * size,
-      0,
-      0,
-      Math.PI * 2,
-    );
+    ctx.ellipse(area.cx * size, area.cy * size, area.rx * size, area.ry * size, 0, 0, Math.PI * 2);
     ctx.fillStyle = area.color;
     ctx.fill();
 
-    const tempCanvas = document.createElement("canvas");
-    tempCanvas.width = tempCanvas.height = size;
-    const tCtx = tempCanvas.getContext("2d");
+    const tCanvas = document.createElement("canvas");
+    tCanvas.width = tCanvas.height = size;
+    const tCtx = tCanvas.getContext("2d");
     tCtx.fillStyle = area.color;
     tCtx.fillRect(0, 0, size, size);
     const tImg = tCtx.getImageData(0, 0, size, size);
     const td = tImg.data;
-    for (let i = 0; i < td.length; i += 4) {
-      const n = (Math.random() - 0.5) * 30;
-      td[i] = clamp(td[i] + n, 0, 255);
-      td[i + 1] = clamp(td[i + 1] + n, 0, 255);
-      td[i + 2] = clamp(td[i + 2] + n * 0.4, 0, 255);
+    for (let j = 0; j < td.length; j += 4) {
+      const n = (Math.random() - 0.5) * 32;
+      td[j] = clamp(td[j] + n, 0, 255);
+      td[j + 1] = clamp(td[j + 1] + n, 0, 255);
+      td[j + 2] = clamp(td[j + 2] + n * 0.3, 0, 255);
     }
     tCtx.putImageData(tImg, 0, 0);
     ctx.globalCompositeOperation = "source-atop";
-    ctx.drawImage(tempCanvas, 0, 0);
+    ctx.drawImage(tCanvas, 0, 0);
     ctx.restore();
 
-    // 陆地凹凸：白色（突起）+ 山脉纹理
     bctx.save();
     bctx.beginPath();
-    bctx.ellipse(
-      area.cx * size,
-      area.cy * size,
-      area.rx * size,
-      area.ry * size,
-      0,
-      0,
-      Math.PI * 2,
-    );
-    bctx.fillStyle = "#c0c0c0";
+    bctx.ellipse(area.cx * size, area.cy * size, area.rx * size, area.ry * size, 0, 0, Math.PI * 2);
+    const bumpBase = area.mt === "desert" ? "#d8c8a0" : area.mt === "forest" ? "#c8c8c8" : area.mt === "ice" ? "#e8e8e8" : "#c0c0c0";
+    bctx.fillStyle = bumpBase;
     bctx.fill();
     const btImg = bctx.getImageData(0, 0, size, size);
     const btd = btImg.data;
-    for (let i = 0; i < btd.length; i += 4) {
-      if (btd[i] > 100) {
-        const n = (Math.random() - 0.5) * 70;
-        btd[i] = btd[i + 1] = btd[i + 2] = clamp(192 + n, 80, 255);
+    for (let j = 0; j < btd.length; j += 4) {
+      if (btd[j] > 100) {
+        const n = (Math.random() - 0.5) * 60;
+        btd[j] = btd[j + 1] = btd[j + 2] = clamp(195 + n, 90, 255);
       }
     }
     bctx.putImageData(btImg, 0, 0);
     bctx.restore();
   });
 
-  // 海洋波浪凹凸噪声
-  for (let i = 0; i < 600; i++) {
+  for (let i = 0; i < 500; i++) {
     const x = Math.random() * size;
     const y = Math.random() * size;
-    const r = Math.random() * 30 + 5;
+    const r = Math.random() * 25 + 4;
     const bg = bctx.createRadialGradient(x, y, 0, x, y, r);
-    bg.addColorStop(0, "rgba(80,80,80,0.15)");
+    bg.addColorStop(0, "rgba(80,80,80,0.12)");
     bg.addColorStop(1, "rgba(64,64,64,0)");
     bctx.fillStyle = bg;
     bctx.beginPath();
@@ -515,29 +523,39 @@ export function createEarthMaps(size = 1024) {
     bctx.fill();
   }
 
-  // 颜色纹理的云层
-  for (let i = 0; i < 400; i++) {
+  for (let i = 0; i < 500; i++) {
     const x = Math.random() * size;
     const y = Math.random() * size;
-    const r = Math.random() * 20 + 2;
-    ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.25})`;
+    const r = Math.random() * 18 + 2;
+    ctx.fillStyle = `rgba(255,255,255,${0.08 + Math.random() * 0.18})`;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
   }
 
-  // 极地冰盖
-  const iceGN = ctx.createLinearGradient(0, 0, 0, size * 0.15);
-  iceGN.addColorStop(0, "rgba(230,240,255,0.85)");
-  iceGN.addColorStop(1, "rgba(230,240,255,0)");
-  ctx.fillStyle = iceGN;
-  ctx.fillRect(0, 0, size, size * 0.15);
+  const iceN = ctx.createLinearGradient(0, 0, 0, size * 0.13);
+  iceN.addColorStop(0, "rgba(230,242,255,0.9)");
+  iceN.addColorStop(1, "rgba(230,242,255,0)");
+  ctx.fillStyle = iceN;
+  ctx.fillRect(0, 0, size, size * 0.13);
 
-  const iceGS = ctx.createLinearGradient(0, size, 0, size * 0.85);
-  iceGS.addColorStop(0, "rgba(230,240,255,0.85)");
-  iceGS.addColorStop(1, "rgba(230,240,255,0)");
-  ctx.fillStyle = iceGS;
-  ctx.fillRect(0, size * 0.85, size, size * 0.15);
+  const iceS = ctx.createLinearGradient(0, size, 0, size * 0.88);
+  iceS.addColorStop(0, "rgba(230,242,255,0.9)");
+  iceS.addColorStop(1, "rgba(230,242,255,0)");
+  ctx.fillStyle = iceS;
+  ctx.fillRect(0, size * 0.88, size, size * 0.12);
+
+  const ibN = bctx.createLinearGradient(0, 0, 0, size * 0.13);
+  ibN.addColorStop(0, "rgba(200,200,200,0.3)");
+  ibN.addColorStop(1, "rgba(64,64,64,0)");
+  bctx.fillStyle = ibN;
+  bctx.fillRect(0, 0, size, size * 0.13);
+
+  const ibS = bctx.createLinearGradient(0, size, 0, size * 0.88);
+  ibS.addColorStop(0, "rgba(200,200,200,0.3)");
+  ibS.addColorStop(1, "rgba(64,64,64,0)");
+  bctx.fillStyle = ibS;
+  bctx.fillRect(0, size * 0.88, size, size * 0.12);
 
   return {
     map: canvasToTexture(c),

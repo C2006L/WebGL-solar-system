@@ -22,7 +22,7 @@ const SCALE = 7; // 1 AU = 7 单位
 
 export const BODIES = {
     sun: {
-        name: 'Sun', size: 2.5, orbitRadius: 0, orbitSpeed: 0,
+        name: 'Sun', size: 3.5, orbitRadius: 0, orbitSpeed: 0,
         orbitalIncl: 0, axialTilt: 7.25,
         selfRotationSpeed: 0.15, type: 'star',
         realAU: 0, realPeriod: 0, realRadius: 696340,
@@ -123,9 +123,9 @@ export const CAMERA_PRESETS = {
 // ---- 场景常量 ----
 export const SCENE = {
     STAR_COUNT: 3000,
-    STAR_RADIUS: 80,
+    STAR_RADIUS: 250,
     ORBIT_SEGMENTS: 256,
-    ASTEROID_COUNT: 2000,
+    ASTEROID_COUNT: 3000,
     ASTEROID_MIN_R: 2.1 * SCALE,
     ASTEROID_MAX_R: 3.3 * SCALE,
 };

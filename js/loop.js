@@ -38,6 +38,7 @@ export function createAnimationLoop(ctx) {
     controls,
     bodyRefs,
     orbitLines,
+    asteroidBelt,
     switchToPreset,
   } = ctx;
 
@@ -144,6 +145,11 @@ export function createAnimationLoop(ctx) {
         const mesh = bodyRefs[refKey];
         if (mesh) mesh.rotation.y += bodyCfg.selfRotationSpeed * dt;
       }
+    }
+
+    // ---- 小行星带缓慢旋转 ----
+    if (asteroidBelt) {
+      asteroidBelt.rotation.y += 0.015 * dt;
     }
 
     // ---- Follow Earth ----

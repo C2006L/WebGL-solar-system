@@ -739,9 +739,7 @@ export function createNeptuneMaps(size = 1024) {
   return { map: canvasToTexture(c), bumpMap: canvasToLinearTexture(bc) };
 }
 
-// ---- 地球纹理（v7：NASA蓝色弹珠 + roughnessMap替代specularMap + 云层） ----
-// roughnessMap: 海洋粗糙度低(反光) → 深色, 陆地粗糙度高(漫反射) → 浅色
-// 这样海洋自然反光，陆地自然漫反射，无需specularMap的白色高光问题
+// ---- 地球纹理（v7：NASA蓝色弹珠 + 法线贴图 + 云层） ----
 
 export function createEarthMaps(_size) {
   const loader = new THREE.TextureLoader();
@@ -753,10 +751,7 @@ export function createEarthMaps(_size) {
   const bumpMap = loader.load(PLANET_TEX_BASE + "earth_normal_2048.jpg");
   bumpMap.colorSpace = THREE.LinearSRGBColorSpace;
 
-  const roughnessMap = loader.load(PLANET_TEX_BASE + "earth_specular_2048.jpg");
-  roughnessMap.colorSpace = THREE.LinearSRGBColorSpace;
-
-  return { map, bumpMap, roughnessMap };
+  return { map, bumpMap };
 }
 
 export function createEarthCloudMap() {

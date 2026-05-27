@@ -349,7 +349,7 @@ export function createCelestialBodies(scene) {
   const earth = createPlanet(
     "earth",
     createEarthMaps,
-    { roughness: 0.8, metalness: 0.0 },
+    { roughness: 0.7, metalness: 0.0 },
     0.06,
   );
   scene.add(earth.inclinationGroup);
@@ -357,12 +357,6 @@ export function createCelestialBodies(scene) {
   refs.earthGroup = earth.bodyGroup;
   refs.earth = earth.mesh;
   refs.earthOrbitRadius = BODIES.earth.orbitRadius;
-
-  if (earth.mesh.material.roughnessMap) {
-    earth.mesh.material.roughnessMap = earth.mesh.material.roughnessMap;
-    earth.mesh.material.roughness = 0.8;
-    earth.mesh.material.needsUpdate = true;
-  }
 
   const atmosphere = createEarthAtmosphere(BODIES.earth.size);
   earth.bodyGroup.add(atmosphere);

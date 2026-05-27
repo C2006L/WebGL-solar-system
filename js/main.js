@@ -1,10 +1,10 @@
 // ============================================================
-// main.js — 入口（v13.2：修复所有模块接口）
+// main.js — 入口（v14：修复所有导入，确保可运行）
 // ============================================================
 
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
-import { initCamera } from "./camera.js";
+import { initCamera, switchToPreset, handleResize } from "./camera.js";
 import { createLighting } from "./lighting.js";
 import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
@@ -12,8 +12,6 @@ import { createStarfield } from "./starfield.js";
 import { createAsteroidBelt } from "./asteroid-belt.js";
 import {
   createAnimationLoop,
-  applyPreset,
-  handleResize,
 } from "./loop.js";
 import {
   hideLoading,
@@ -63,14 +61,23 @@ scene.add(asteroidBelt);
 const orbitGroup = createAllOrbits(bodyRefs);
 scene.add(orbitGroup);
 
-// ---- 7. UI 按钮 ----
+// ---- 7. 视角预设包装 ----
+function applyPreset(presetKey) {
+  const earthPos =
+    presetKey === "followEarth" && bodyRefs.earthGroup
+      ? bodyRefs.earthGroup.getWorldPosition(new THREE.Vector3())
+      : null;
+  switchToPreset(camera, controls, presetKey, earthPos);
+}
+
+// ---- 8. UI 按钮 ----
 createViewPresetButtons(applyPreset);
 toggleHelp();
 
-// ---- 8. 交互 ----
+// ---- 9. 交互 ----
 initInteraction(camera, renderer, bodyRefs, controls);
 
-// ---- 9. 启动动画循环 ----
+// ---- 10. 启动动画循环 ----
 const clock = new THREE.Clock();
 const ctx = {
   scene,
@@ -90,13 +97,10 @@ window.addEventListener("resize", () => handleResize(camera, renderer));
 hideLoading();
 loop.start();
 
-console.log('Solar System v13 Ready');
-console.log('  ↑/↓: speed | Space: pause | 1-4: camera | R: reset | H: help | O: orbits');
+console.log('Solar System v14 Ready');
 
 } catch (err) {
   console.error('Solar System init error:', err);
   var el = document.getElementById('loading');
-  if (el) el.innerHTML = '<p style="color:#ff4444">Error loading. Press F12 → Console for details.</p>';
+  if (el) el.innerHTML = '<p style="color:#ff4444">Error loading. Press F12 for details.</p>';
 }
-
-window.addEventListener('error', function(e) { console.error('Global error:', e.error); });

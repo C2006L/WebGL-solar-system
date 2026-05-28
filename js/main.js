@@ -86,6 +86,7 @@ try {
     focusOnBody(camera, controls, mesh, bodyKey);
     highlightLabel(bodyKey);
   }
+  window._onFocusBody = onFocusBody;
 
   // ---- 8. 视角预设包装 ----
   function applyPreset(presetKey) {

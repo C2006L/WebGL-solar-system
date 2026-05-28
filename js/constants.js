@@ -1,9 +1,5 @@
 // ============================================================
-// constants.js — v10：修复水星遮挡 + 月球距离 + 真实地球贴图
-// ============================================================
-// Sun=3.0 < Mercury orbit=3.87 → 水星可见
-// Moon orbitRadius=1.8 → 月球紧贴地球 (视觉合理)
-// Earth 使用 NASA/Three.js 官方蓝色弹珠贴图
+// constants.js — v23：天体数据扩展 + 卫星详细信息
 // ============================================================
 
 export const SIM = {
@@ -35,6 +31,12 @@ export const BODIES = {
     emissiveIntensity: 0,
     description:
       "G-type main-sequence star (G2V). Surface temp: 5,778 K. 99.86% of Solar System mass.",
+    mass: 332900,
+    gravity: 274,
+    temperature: "5,778 K",
+    atmosphere: "H (73%), He (25%), traces",
+    moonCount: 8,
+    discovery: "Known since antiquity",
   },
   mercury: {
     name: "Mercury",
@@ -53,6 +55,12 @@ export const BODIES = {
     emissiveIntensity: 0.18,
     description:
       "Smallest planet. No atmosphere. Temperature range: -180°C to 430°C.",
+    mass: 0.055,
+    gravity: 3.7,
+    temperature: "-180 to 430 °C",
+    atmosphere: "None (trace exosphere)",
+    moonCount: 0,
+    discovery: "Known since antiquity",
   },
   venus: {
     name: "Venus",
@@ -71,6 +79,12 @@ export const BODIES = {
     emissiveIntensity: 0.22,
     description:
       "Hottest planet (462°C). Thick CO₂ atmosphere. Retrograde rotation.",
+    mass: 0.815,
+    gravity: 8.87,
+    temperature: "462 °C (mean)",
+    atmosphere: "CO₂ (96.5%), N₂ (3.5%)",
+    moonCount: 0,
+    discovery: "Known since antiquity",
   },
   earth: {
     name: "Earth",
@@ -89,6 +103,12 @@ export const BODIES = {
     emissiveIntensity: 0.2,
     description:
       "Only known planet with life. 71% ocean. Atmosphere: N₂ 78%, O₂ 21%.",
+    mass: 1.0,
+    gravity: 9.81,
+    temperature: "15 °C (mean)",
+    atmosphere: "N₂ (78%), O₂ (21%), Ar (0.9%)",
+    moonCount: 1,
+    discovery: "Known since antiquity",
   },
   moon: {
     name: "Moon",
@@ -107,6 +127,12 @@ export const BODIES = {
     emissiveIntensity: 0.12,
     description:
       "Earth only natural satellite. Tidally locked. Basaltic maria + anorthositic highlands.",
+    mass: 0.0123,
+    gravity: 1.62,
+    temperature: "-20 °C (mean)",
+    atmosphere: "None (trace exosphere)",
+    moonCount: 0,
+    discovery: "Known since antiquity",
   },
   mars: {
     name: "Mars",
@@ -124,6 +150,12 @@ export const BODIES = {
     emissiveHex: "#401208",
     emissiveIntensity: 0.2,
     description: "Red Planet. Iron oxide surface. Olympus Mons (21.9 km).",
+    mass: 0.107,
+    gravity: 3.73,
+    temperature: "-63 °C (mean)",
+    atmosphere: "CO₂ (95%), N₂ (2.6%), Ar (1.9%)",
+    moonCount: 2,
+    discovery: "Known since antiquity",
   },
   jupiter: {
     name: "Jupiter",
@@ -141,6 +173,12 @@ export const BODIES = {
     emissiveHex: "#3a2210",
     emissiveIntensity: 0.15,
     description: "Largest planet. Great Red Spot: 350+ years. 95 known moons.",
+    mass: 317.8,
+    gravity: 24.79,
+    temperature: "-110 °C (cloud top)",
+    atmosphere: "H₂ (89%), He (10%), CH₄, NH₃",
+    moonCount: 95,
+    discovery: "Known since antiquity",
   },
   saturn: {
     name: "Saturn",
@@ -159,6 +197,12 @@ export const BODIES = {
     emissiveIntensity: 0.3,
     description:
       "Iconic ring system: D/C/B/A/F/G/E rings. Main rings span 1.24-2.27 Rs. Composition: >95% water ice particles (cm-m size). Thickness: <100m. Cassini Division gap between B and A rings.",
+    mass: 95.16,
+    gravity: 10.44,
+    temperature: "-178 °C (cloud top)",
+    atmosphere: "H₂ (96%), He (3%), CH₄, NH₃",
+    moonCount: 146,
+    discovery: "Known since antiquity",
   },
   uranus: {
     name: "Uranus",
@@ -176,6 +220,12 @@ export const BODIES = {
     emissiveHex: "#0a3040",
     emissiveIntensity: 0.18,
     description: "Ice giant. Rotates on its side (98°). Methane → cyan color.",
+    mass: 14.54,
+    gravity: 8.69,
+    temperature: "-224 °C",
+    atmosphere: "H₂ (83%), He (15%), CH₄ (2%)",
+    moonCount: 27,
+    discovery: "Herschel 1781",
   },
   neptune: {
     name: "Neptune",
@@ -194,6 +244,12 @@ export const BODIES = {
     emissiveIntensity: 0.22,
     description:
       "Windiest planet (2,100 km/h). Discovered mathematically (1846).",
+    mass: 17.15,
+    gravity: 11.15,
+    temperature: "-218 °C",
+    atmosphere: "H₂ (80%), He (19%), CH₄ (1%)",
+    moonCount: 16,
+    discovery: "Galle 1846 (predicted)",
   },
   io: {
     name: "Io",
@@ -212,6 +268,12 @@ export const BODIES = {
     emissiveIntensity: 0.18,
     description:
       "Most volcanically active body. 400+ volcanoes. Orbital resonance with Europa & Ganymede (4:2:1).",
+    mass: 0.015,
+    gravity: 1.8,
+    temperature: "-130 °C",
+    atmosphere: "SO₂ (trace)",
+    moonCount: 0,
+    discovery: "Galileo 1610",
   },
   europa: {
     name: "Europa",
@@ -230,6 +292,12 @@ export const BODIES = {
     emissiveIntensity: 0.15,
     description:
       "Icy crust. Subsurface global ocean. Prime target for astrobiology.",
+    mass: 0.008,
+    gravity: 1.31,
+    temperature: "-160 °C",
+    atmosphere: "O₂ (trace)",
+    moonCount: 0,
+    discovery: "Galileo 1610",
   },
   ganymede: {
     name: "Ganymede",
@@ -248,6 +316,12 @@ export const BODIES = {
     emissiveIntensity: 0.14,
     description:
       "Largest moon in Solar System. Only moon with intrinsic magnetic field.",
+    mass: 0.025,
+    gravity: 1.43,
+    temperature: "-160 °C",
+    atmosphere: "O₂ (trace)",
+    moonCount: 0,
+    discovery: "Galileo 1610",
   },
   callisto: {
     name: "Callisto",
@@ -266,6 +340,12 @@ export const BODIES = {
     emissiveIntensity: 0.1,
     description:
       "Most heavily cratered body. Ancient surface (>4 Gyr). Valhalla multi-ring impact basin.",
+    mass: 0.018,
+    gravity: 1.24,
+    temperature: "-139 °C",
+    atmosphere: "CO₂ (trace)",
+    moonCount: 0,
+    discovery: "Galileo 1610",
   },
   phobos: {
     name: "Phobos",
@@ -284,6 +364,12 @@ export const BODIES = {
     emissiveIntensity: 0.08,
     description:
       "Largest Mars moon. Captured asteroid. Spiraling toward Mars. Stickney crater (9 km).",
+    mass: 0.0000018,
+    gravity: 0.0057,
+    temperature: "-40 °C",
+    atmosphere: "None",
+    moonCount: 0,
+    discovery: "Hall 1877",
   },
   deimos: {
     name: "Deimos",
@@ -302,6 +388,12 @@ export const BODIES = {
     emissiveIntensity: 0.06,
     description:
       "Smaller Mars moon. Captured asteroid. Smooth surface from regolith infill. Slowly receding from Mars.",
+    mass: 0.00000025,
+    gravity: 0.003,
+    temperature: "-40 °C",
+    atmosphere: "None",
+    moonCount: 0,
+    discovery: "Hall 1877",
   },
   mimas: {
     name: "Mimas",
@@ -320,6 +412,12 @@ export const BODIES = {
     emissiveIntensity: 0.1,
     description:
       "Smallest round Saturn moon. 130 km Herschel crater. 'Death Star' appearance. Icy body.",
+    mass: 0.0000066,
+    gravity: 0.064,
+    temperature: "-209 °C",
+    atmosphere: "None",
+    moonCount: 0,
+    discovery: "Herschel 1789",
   },
   enceladus: {
     name: "Enceladus",
@@ -338,6 +436,12 @@ export const BODIES = {
     emissiveIntensity: 0.12,
     description:
       "Active icy moon. South pole geysers. Subsurface global ocean. E ring source. Reflects 99% sunlight.",
+    mass: 0.000018,
+    gravity: 0.113,
+    temperature: "-198 °C",
+    atmosphere: "H₂O vapor (plumes)",
+    moonCount: 0,
+    discovery: "Herschel 1789",
   },
   tethys: {
     name: "Tethys",
@@ -356,6 +460,12 @@ export const BODIES = {
     emissiveIntensity: 0.09,
     description:
       "Medium icy Saturn moon. Odysseus crater (445 km). Ithaca Chasma tectonic trench. Low density (0.98 g/cm³).",
+    mass: 0.000103,
+    gravity: 0.146,
+    temperature: "-187 °C",
+    atmosphere: "None",
+    moonCount: 0,
+    discovery: "Cassini 1684",
   },
   dione: {
     name: "Dione",
@@ -374,6 +484,12 @@ export const BODIES = {
     emissiveIntensity: 0.1,
     description:
       "Saturn moon with varied terrain. Wispy ice cliffs. Subsurface ocean suspected. Co-orbital with Helene & Polydeuces.",
+    mass: 0.000183,
+    gravity: 0.232,
+    temperature: "-186 °C",
+    atmosphere: "O₂ (trace)",
+    moonCount: 0,
+    discovery: "Cassini 1684",
   },
   rhea: {
     name: "Rhea",
@@ -392,6 +508,12 @@ export const BODIES = {
     emissiveIntensity: 0.08,
     description:
       "Second largest Saturn moon. Heavily cratered icy body. Uniform surface. Possible thin ring system.",
+    mass: 0.000386,
+    gravity: 0.264,
+    temperature: "-174 °C",
+    atmosphere: "O₂/CO₂ (trace)",
+    moonCount: 0,
+    discovery: "Cassini 1672",
   },
   titan: {
     name: "Titan",
@@ -410,6 +532,12 @@ export const BODIES = {
     emissiveIntensity: 0.1,
     description:
       "Largest Saturn moon. Thick nitrogen atmosphere (1.5 bar). Liquid methane lakes. Only moon with atmosphere. Huygens probe (2005).",
+    mass: 0.0225,
+    gravity: 1.35,
+    temperature: "-179 °C",
+    atmosphere: "N₂ (95%), CH₄ (5%)",
+    moonCount: 0,
+    discovery: "Huygens 1655",
   },
 };
 

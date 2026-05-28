@@ -73,6 +73,7 @@ export function focusOnBody(camera, controls, bodyRef, bodyKey) {
     progress: 0,
     duration: 1.5,
     transitioning: true,
+    lastTarget: null,
   };
 
   controls.autoRotate = false;
@@ -94,14 +95,39 @@ export function updateFocusAnimation(camera, controls, delta) {
     if (focusState.progress >= 1) {
       focusState.progress = 1;
       focusState.transitioning = false;
+      focusState.lastTarget = _focusV1.clone();
     }
 
     const t = easeOutCubic(focusState.progress);
     camera.position.lerpVectors(focusState.startPos, _focusV2, t);
     controls.target.lerpVectors(focusState.startTarget, _focusV1, t);
   } else {
-    camera.position.lerp(_focusV2, 0.03);
-    controls.target.lerp(_focusV1, 0.05);
+    const dist = focusState.lastTarget
+      ? focusState.lastTarget.distanceTo(_focusV1)
+      : 0;
+    const isMoon = cfg && cfg.type === "moon";
+    const isFastMoon = cfg && cfg.orbitSpeed && Math.abs(cfg.orbitSpeed) > 15;
+    focusState.lastTarget = _focusV1.clone();
+
+    let posLerp, targetLerp;
+    if (isFastMoon) {
+      posLerp = 0.012;
+      targetLerp = 0.015;
+    } else if (isMoon) {
+      posLerp = 0.025;
+      targetLerp = 0.03;
+    } else {
+      posLerp = 0.04;
+      targetLerp = 0.06;
+    }
+
+    camera.position.lerp(_focusV2, posLerp);
+    controls.target.lerp(_focusV1, targetLerp);
+
+    const maxShift = viewDist * 0.15 * delta;
+    if (camera.position.distanceTo(_focusV2) > viewDist * 1.5) {
+      camera.position.lerp(_focusV2, 0.08);
+    }
   }
 }
 

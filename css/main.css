@@ -3,352 +3,473 @@
    ============================================================ */
 
 * {
-    margin: 0;
-    padding: 0;
-    box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
 body {
-    margin: 0;
-    overflow: hidden;
-    font-family: 'Segoe UI', 'Microsoft YaHei', 'PingFang SC', sans-serif;
-    background: #000005;
-    cursor: grab;
+  margin: 0;
+  overflow: hidden;
+  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  background: #000005;
+  cursor: grab;
 }
 
 body:active {
-    cursor: grabbing;
+  cursor: grabbing;
 }
 
 canvas {
-    display: block;
+  display: block;
 }
 
 /* ---- 顶部标题 ---- */
 #title {
-    position: fixed;
-    top: 26px;
-    left: 50%;
-    transform: translateX(-50%);
-    color: rgba(255, 255, 255, 0.7);
-    font-size: 20px;
-    font-weight: 300;
-    letter-spacing: 6px;
-    z-index: 10;
-    pointer-events: none;
-    text-shadow: 0 0 40px rgba(100, 150, 255, 0.35);
+  position: fixed;
+  top: 26px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 20px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  z-index: 10;
+  pointer-events: none;
+  text-shadow: 0 0 40px rgba(100, 150, 255, 0.35);
 }
 
 /* ---- 底部信息面板 ---- */
 #info-panel {
-    position: fixed;
-    bottom: 18px;
-    left: 50%;
-    transform: translateX(-50%);
-    background: rgba(8, 8, 20, 0.78);
-    color: #ccc;
-    padding: 10px 26px;
-    border-radius: 24px;
-    font-size: 13px;
-    z-index: 10;
-    pointer-events: none;
-    backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.12);
-    display: flex;
-    gap: 22px;
-    align-items: center;
+  position: fixed;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: rgba(8, 8, 20, 0.78);
+  color: #ccc;
+  padding: 10px 26px;
+  border-radius: 24px;
+  font-size: 13px;
+  z-index: 10;
+  pointer-events: none;
+  backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  display: flex;
+  gap: 22px;
+  align-items: center;
 }
 
 #info-panel .speed {
-    color: #ffb800;
-    font-weight: 600;
+  color: #ffb800;
+  font-weight: 600;
 }
 
-/* ---- 天体信息弹出面板 ---- */
+/* ---- 星球信息面板（悬浮浮动卡片） ---- */
 #object-info {
-    position: fixed;
-    top: 50%;
-    right: -320px;
-    transform: translateY(-50%);
-    width: 260px;
-    background: rgba(10, 10, 30, 0.9);
-    color: #ddd;
-    padding: 20px 22px;
-    border-radius: 14px;
-    z-index: 50;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(18px);
-    transition: right 0.35s cubic-bezier(0.22, 0.61, 0.36, 1);
-    font-size: 13px;
-    line-height: 1.8;
-    pointer-events: auto;
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 230px;
+  background: rgba(10, 10, 28, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 12px;
+  padding: 14px;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  opacity: 0;
+  transform: scale(0.92);
+  pointer-events: none;
+  transition:
+    opacity 0.2s,
+    transform 0.2s;
+  font-size: 12px;
+  color: #ccc;
 }
 
 #object-info.visible {
-    right: 24px;
+  opacity: 1;
+  transform: scale(1);
+  pointer-events: auto;
 }
 
-#object-info-name {
-    font-size: 17px;
-    font-weight: 600;
-    color: #fff;
-    margin-bottom: 10px;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+.ip-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
 }
 
-#object-info-details {
-    color: #aaa;
+.ip-dot {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 6px currentColor;
 }
 
-#object-info-close {
-    position: absolute;
-    top: 10px;
-    right: 14px;
-    color: #888;
-    cursor: pointer;
-    font-size: 16px;
-    transition: color 0.2s;
+.ip-icon {
+  font-size: 11px;
+  color: #888;
+  flex-shrink: 0;
 }
 
-#object-info-close:hover {
-    color: #fff;
+.ip-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #fff;
+  letter-spacing: 0.5px;
+  flex: 1;
+}
+
+.ip-type {
+  font-size: 10px;
+  color: #777;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.ip-close {
+  background: none;
+  border: none;
+  color: #666;
+  font-size: 16px;
+  cursor: pointer;
+  padding: 0 2px;
+  line-height: 1;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.ip-close:hover {
+  color: #fff;
+}
+
+.ip-divider {
+  height: 1px;
+  background: rgba(255, 255, 255, 0.1);
+  margin: 8px 0;
+}
+
+.ip-core {
+}
+
+.ip-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 3px 0;
+  gap: 10px;
+}
+
+.ip-row-wrap {
+  flex-wrap: wrap;
+}
+
+.ip-label {
+  color: #666;
+  font-size: 11px;
+  flex-shrink: 0;
+}
+
+.ip-val {
+  color: #bbb;
+  font-size: 11px;
+  text-align: right;
+  word-break: break-word;
+}
+
+.ip-desc {
+  font-style: italic;
+  color: #888;
+  font-size: 10px;
+  text-align: left;
+}
+
+.ip-group-title {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: #ffb800;
+  margin-bottom: 4px;
+}
+
+.ip-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.ip-detail-btn {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: #aaa;
+  padding: 5px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  transition: all 0.25s;
+  letter-spacing: 0.5px;
+}
+
+.ip-detail-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  color: #fff;
+}
+
+.ip-focus-btn {
+  background: rgba(255, 180, 0, 0.15);
+  border: 1px solid rgba(255, 180, 0, 0.35);
+  color: #ffb800;
+  padding: 5px 14px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 11px;
+  font-family: inherit;
+  transition: all 0.25s;
+  letter-spacing: 0.5px;
+}
+
+.ip-focus-btn:hover {
+  background: rgba(255, 180, 0, 0.25);
+  color: #fff;
 }
 
 /* ---- 加载提示 ---- */
 #loading {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    color: rgba(255, 255, 255, 0.8);
-    font-size: 16px;
-    z-index: 100;
-    pointer-events: none;
-    transition: opacity 0.5s ease;
-    letter-spacing: 2px;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 16px;
+  z-index: 100;
+  pointer-events: none;
+  transition: opacity 0.5s ease;
+  letter-spacing: 2px;
 }
 
 /* ---- 帮助覆盖层 ---- */
 .help-overlay {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background: rgba(8, 8, 24, 0.94);
-    color: #ccc;
-    padding: 28px 34px;
-    border-radius: 16px;
-    z-index: 200;
-    font-size: 13px;
-    line-height: 2.1;
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    backdrop-filter: blur(20px);
-    min-width: 320px;
-    cursor: pointer;
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(8, 8, 24, 0.94);
+  color: #ccc;
+  padding: 28px 34px;
+  border-radius: 16px;
+  z-index: 200;
+  font-size: 13px;
+  line-height: 2.1;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  backdrop-filter: blur(20px);
+  min-width: 320px;
+  cursor: pointer;
 }
 
 .help-overlay b {
-    color: #fff;
+  color: #fff;
 }
 
 .help-overlay .section-title {
-    font-size: 16px;
-    color: #ffb800;
-    margin-top: 12px;
-    margin-bottom: 2px;
+  font-size: 16px;
+  color: #ffb800;
+  margin-top: 12px;
+  margin-bottom: 2px;
 }
 
 /* ---- 预设视图按钮 ---- */
 #view-presets {
-    position: fixed;
-    top: 80px;
-    right: 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    z-index: 30;
+  position: fixed;
+  top: 80px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  z-index: 30;
 }
 
 #view-presets button {
-    background: rgba(8, 8, 24, 0.7);
-    color: #aaa;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 7px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    letter-spacing: 1px;
-    transition: all 0.25s;
-    backdrop-filter: blur(8px);
-    font-family: inherit;
+  background: rgba(8, 8, 24, 0.7);
+  color: #aaa;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+  backdrop-filter: blur(8px);
+  font-family: inherit;
 }
 
 #view-presets button:hover {
-    background: rgba(30, 30, 60, 0.8);
-    color: #fff;
-    border-color: rgba(255, 255, 255, 0.35);
+  background: rgba(30, 30, 60, 0.8);
+  color: #fff;
+  border-color: rgba(255, 255, 255, 0.35);
 }
 
 #view-presets button.active {
-    background: rgba(255, 180, 0, 0.2);
-    color: #ffb800;
-    border-color: rgba(255, 180, 0, 0.5);
+  background: rgba(255, 180, 0, 0.2);
+  color: #ffb800;
+  border-color: rgba(255, 180, 0, 0.5);
 }
 
 /* ---- 轨道开关 ---- */
 #orbit-toggle {
-    position: fixed;
-    top: 80px;
-    left: 16px;
-    z-index: 30;
+  position: fixed;
+  top: 80px;
+  left: 16px;
+  z-index: 30;
 }
 
 #orbit-toggle button {
-    background: rgba(8, 8, 24, 0.7);
-    color: #aaa;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 7px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    letter-spacing: 1px;
-    transition: all 0.25s;
-    backdrop-filter: blur(8px);
-    font-family: inherit;
+  background: rgba(8, 8, 24, 0.7);
+  color: #aaa;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+  backdrop-filter: blur(8px);
+  font-family: inherit;
 }
 
 #orbit-toggle button:hover {
-    background: rgba(30, 30, 60, 0.8);
-    color: #fff;
+  background: rgba(30, 30, 60, 0.8);
+  color: #fff;
 }
 
 /* ---- 开灯按钮 ---- */
 #light-toggle {
-    position: fixed;
-    top: 120px;
-    left: 16px;
-    z-index: 30;
+  position: fixed;
+  top: 120px;
+  left: 16px;
+  z-index: 30;
 }
 
 #light-toggle button {
-    background: rgba(8, 8, 24, 0.7);
-    color: #aaa;
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    padding: 7px 14px;
-    border-radius: 8px;
-    cursor: pointer;
-    font-size: 12px;
-    letter-spacing: 1px;
-    transition: all 0.25s;
-    backdrop-filter: blur(8px);
-    font-family: inherit;
+  background: rgba(8, 8, 24, 0.7);
+  color: #aaa;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+  backdrop-filter: blur(8px);
+  font-family: inherit;
 }
 
 #light-toggle button:hover {
-    background: rgba(30, 30, 60, 0.8);
-    color: #fff;
+  background: rgba(30, 30, 60, 0.8);
+  color: #fff;
 }
 
 #light-toggle button.active {
-    background: rgba(255, 200, 50, 0.2);
-    color: #ffcc44;
-    border-color: rgba(255, 200, 50, 0.5);
+  background: rgba(255, 200, 50, 0.2);
+  color: #ffcc44;
+  border-color: rgba(255, 200, 50, 0.5);
 }
 
 /* ---- 右侧星体标签导航 ---- */
 #body-labels {
-    position: fixed;
-    right: 16px;
-    top: 230px;
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-    z-index: 30;
-    max-height: calc(100vh - 260px);
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.15) transparent;
+  position: fixed;
+  right: 16px;
+  top: 230px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  z-index: 30;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(255, 255, 255, 0.15) transparent;
 }
 
 #body-labels::-webkit-scrollbar {
-    width: 4px;
+  width: 4px;
 }
 
 #body-labels::-webkit-scrollbar-thumb {
-    background: rgba(255,255,255,0.15);
-    border-radius: 2px;
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 2px;
 }
 
 .body-label {
-    display: flex;
-    align-items: center;
-    gap: 7px;
-    padding: 5px 10px;
-    border-radius: 7px;
-    cursor: pointer;
-    transition: all 0.25s;
-    background: rgba(8, 8, 24, 0.45);
-    border: 1px solid transparent;
-    user-select: none;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 10px;
+  border-radius: 7px;
+  cursor: pointer;
+  transition: all 0.25s;
+  background: rgba(8, 8, 24, 0.45);
+  border: 1px solid transparent;
+  user-select: none;
 }
 
 .body-label:hover {
-    background: rgba(30, 30, 60, 0.75);
-    border-color: rgba(255, 255, 255, 0.18);
+  background: rgba(30, 30, 60, 0.75);
+  border-color: rgba(255, 255, 255, 0.18);
 }
 
 .body-label.active {
-    background: rgba(255, 180, 0, 0.15);
-    border-color: rgba(255, 180, 0, 0.45);
+  background: rgba(255, 180, 0, 0.15);
+  border-color: rgba(255, 180, 0, 0.45);
 }
 
 .body-label.moon {
-    padding-left: 22px;
+  padding-left: 22px;
 }
 
 .body-label-dot {
-    width: 7px;
-    height: 7px;
-    border-radius: 50%;
-    flex-shrink: 0;
-    box-shadow: 0 0 4px currentColor;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  box-shadow: 0 0 4px currentColor;
 }
 
 .body-label-icon {
-    font-size: 10px;
-    color: #666;
-    flex-shrink: 0;
-    width: 12px;
-    text-align: center;
+  font-size: 10px;
+  color: #666;
+  flex-shrink: 0;
+  width: 12px;
+  text-align: center;
 }
 
 .body-label-info {
-    display: flex;
-    flex-direction: column;
-    min-width: 0;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 .body-label-name {
-    font-size: 11px;
-    color: #bbb;
-    letter-spacing: 0.5px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+  font-size: 11px;
+  color: #bbb;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .body-label.active .body-label-name {
-    color: #ffb800;
+  color: #ffb800;
 }
 
 .body-label-type {
-    font-size: 9px;
-    color: #555;
-    text-transform: capitalize;
-    white-space: nowrap;
+  font-size: 9px;
+  color: #555;
+  text-transform: capitalize;
+  white-space: nowrap;
 }
 
 .body-label.active .body-label-type {
-    color: #887730;
+  color: #887730;
 }

@@ -23,37 +23,144 @@ export function highlightPresetButton(presetKey) {
   buttons.forEach((b, i) => b.classList.toggle("active", i === idx));
 }
 
-export function showObjectInfo(name, description, stats = {}) {
-  const panel = document.getElementById("object-info");
-  const nameEl = document.getElementById("object-info-name");
-  const detailsEl = document.getElementById("object-info-details");
-  if (!panel || !nameEl || !detailsEl) return;
+let activeInfoKey = null;
+let isDetailOpen = false;
 
-  nameEl.textContent = name;
-  let html = `<div style="color:#aaa;margin-bottom:6px;">${description}</div>`;
+export function showObjectInfo(key, x, y, cfg) {
+  activeInfoKey = key;
+  isDetailOpen = false;
+  const panel = ensureInfoPanel();
 
-  if (stats.type) {
-    html += `<div style="color:#ffb800;">Type: ${stats.type}</div>`;
-  }
-  if (stats.realRadius) {
-    html += `<div>Radius: ${stats.realRadius.toLocaleString()} km</div>`;
-  }
-  if (stats.realAU) {
-    html += `<div>Orbit: ${stats.realAU} AU</div>`;
-  }
-  if (stats.realPeriod) {
-    const yr = stats.realPeriod / 365.25;
-    html += `<div>Period: ${stats.realPeriod.toFixed(0)} days${yr > 1 ? " (" + yr.toFixed(2) + " yr)" : ""}</div>`;
-  }
-  if (stats.rotationPeriod) {
-    html += `<div>Rotation: ${stats.rotationPeriod} days</div>`;
-  }
+  const typeLabel =
+    cfg.type === "star" ? "Star" : cfg.type === "planet" ? "Planet" : "Moon";
+  const typeIcon =
+    cfg.type === "star" ? "★" : cfg.type === "planet" ? "●" : "○";
+
+  panel.innerHTML = `
+    <div class="ip-header">
+      <span class="ip-dot" style="background-color:${cfg.color}"></span>
+      <span class="ip-icon">${typeIcon}</span>
+      <span class="ip-name">${cfg.name}</span>
+      <span class="ip-type">${typeLabel}</span>
+      <button class="ip-close" id="ip-close-btn">×</button>
+    </div>
+    <div class="ip-divider"></div>
+    <div class="ip-core">
+      <div class="ip-row"><span class="ip-label">半径</span><span class="ip-val">${cfg.realRadius ? cfg.realRadius.toLocaleString() + " km" : "—"}</span></div>
+      <div class="ip-row"><span class="ip-label">轨道</span><span class="ip-val">${cfg.realAU ? cfg.realAU + " AU" : cfg.type === "moon" ? cfg.orbitRadius.toFixed(1) + " (sim)" : "—"}</span></div>
+      <div class="ip-row"><span class="ip-label">公转</span><span class="ip-val">${cfg.realPeriod ? formatPeriod(cfg.realPeriod) : "—"}</span></div>
+    </div>
+    <div class="ip-detail-section" id="ip-detail-section" style="display:none;">
+      <div class="ip-divider"></div>
+      <div class="ip-group-title">物理参数</div>
+      <div class="ip-row"><span class="ip-label">质量</span><span class="ip-val">${cfg.mass ? (cfg.mass >= 1 ? cfg.mass.toLocaleString() + " 地球" : cfg.mass.toFixed(4) + " 地球") : "—"}</span></div>
+      <div class="ip-row"><span class="ip-label">重力</span><span class="ip-val">${cfg.gravity != null ? cfg.gravity + " m/s²" : "—"}</span></div>
+      <div class="ip-row"><span class="ip-label">温度</span><span class="ip-val">${cfg.temperature || "—"}</span></div>
+      <div class="ip-divider"></div>
+      <div class="ip-group-title">轨道数据</div>
+      <div class="ip-row"><span class="ip-label">轨道半径</span><span class="ip-val">${cfg.realAU ? cfg.realAU + " AU" : "—"}</span></div>
+      ${cfg.orbitalIncl != null ? '<div class="ip-row"><span class="ip-label">轨道倾角</span><span class="ip-val">' + cfg.orbitalIncl + "°</span></div>" : ""}
+      ${cfg.selfRotationSpeed ? '<div class="ip-row"><span class="ip-label">自转周期</span><span class="ip-val">' + ((2 * Math.PI) / Math.abs(cfg.selfRotationSpeed)).toFixed(2) + " 天</span></div>" : ""}
+      ${cfg.axialTilt != null ? '<div class="ip-row"><span class="ip-label">轴倾角</span><span class="ip-val">' + cfg.axialTilt + "°</span></div>" : ""}
+      <div class="ip-divider"></div>
+      <div class="ip-group-title">特征</div>
+      ${cfg.atmosphere ? '<div class="ip-row ip-row-wrap"><span class="ip-label">大气</span><span class="ip-val">' + cfg.atmosphere + "</span></div>" : ""}
+      ${cfg.moonCount != null && cfg.moonCount > 0 ? '<div class="ip-row"><span class="ip-label">卫星</span><span class="ip-val">' + cfg.moonCount + " 颗</span></div>" : ""}
+      <div class="ip-row ip-row-wrap"><span class="ip-label">描述</span><span class="ip-val ip-desc">${cfg.description || "—"}</span></div>
+      ${cfg.discovery ? '<div class="ip-row"><span class="ip-label">发现</span><span class="ip-val">' + cfg.discovery + "</span></div>" : ""}
+      <div style="margin-top:12px; text-align:center;">
+        <button class="ip-focus-btn" id="ip-focus-btn">🎯 聚焦此星球</button>
+      </div>
+    </div>
+    <div class="ip-actions">
+      <button class="ip-detail-btn" id="ip-detail-btn">📋 详情</button>
+    </div>
+  `;
+
+  positionPanel(x, y);
   panel.classList.add("visible");
+
+  setupPanelEvents(key);
+}
+
+function ensureInfoPanel() {
+  let panel = document.getElementById("object-info");
+  if (!panel) {
+    panel = document.createElement("div");
+    panel.id = "object-info";
+    document.body.appendChild(panel);
+  }
+  return panel;
+}
+
+function positionPanel(x, y) {
+  const panel = document.getElementById("object-info");
+  if (!panel) return;
+  const pw = panel.offsetWidth || 230;
+  const ph = panel.offsetHeight || 150;
+  let left = x + 30;
+  let top = y - ph - 20;
+  if (left + pw > window.innerWidth - 180) left = x - pw - 30;
+  if (top < 10) top = y + 30;
+  if (left < 10) left = 10;
+  panel.style.left = left + "px";
+  panel.style.top = top + "px";
+  panel.style.right = "auto";
+  panel.style.transform = "none";
+}
+
+function setupPanelEvents(key) {
+  const detailBtn = document.getElementById("ip-detail-btn");
+  const focusBtn = document.getElementById("ip-focus-btn");
+  const closeBtn = document.getElementById("ip-close-btn");
+  const detailSec = document.getElementById("ip-detail-section");
+  const actions = document.querySelector("#object-info .ip-actions");
+
+  if (detailBtn) {
+    detailBtn.addEventListener("click", () => {
+      isDetailOpen = !isDetailOpen;
+      if (isDetailOpen) {
+        detailSec.style.display = "block";
+        if (actions) actions.style.display = "none";
+        detailBtn.textContent = "📋 收起";
+      } else {
+        detailSec.style.display = "none";
+        if (actions) actions.style.display = "flex";
+        detailBtn.textContent = "📋 详情";
+      }
+      positionPanel(
+        parseFloat(document.getElementById("object-info").style.left || 0),
+        parseFloat(document.getElementById("object-info").style.top || 0),
+      );
+    });
+  }
+
+  if (focusBtn) {
+    focusBtn.addEventListener("click", () => {
+      if (window._onFocusBody) window._onFocusBody(key);
+    });
+  }
+
+  if (closeBtn) {
+    closeBtn.addEventListener("click", () => {
+      hideObjectInfo();
+    });
+  }
 }
 
 export function hideObjectInfo() {
+  activeInfoKey = null;
+  isDetailOpen = false;
   const panel = document.getElementById("object-info");
   if (panel) panel.classList.remove("visible");
+}
+
+function formatPeriod(days) {
+  if (days >= 365.25) {
+    const yr = days / 365.25;
+    return days.toFixed(0) + " 天 (" + yr.toFixed(2) + " 年)";
+  }
+  return days.toFixed(1) + " 天";
 }
 
 export function toggleHelp() {
@@ -262,12 +369,4 @@ export function clearLabelHighlight() {
   });
 }
 
-function bindCloseBtn() {
-  const btn = document.getElementById("object-info-close");
-  if (btn) btn.addEventListener("click", hideObjectInfo);
-}
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", bindCloseBtn);
-} else {
-  bindCloseBtn();
 }

@@ -108,25 +108,64 @@ function createSaturnRing(planetSize) {
   geo.rotateX(-Math.PI / 2);
 
   const loader = new THREE.TextureLoader();
-  const ringTex = loader.load("./textures/2k_saturn_ring_alpha.png");
-  ringTex.colorSpace = THREE.SRGBColorSpace;
-  ringTex.anisotropy = 16;
-  ringTex.minFilter = THREE.LinearMipmapLinearFilter;
-  ringTex.magFilter = THREE.LinearFilter;
+  const alphaTex = loader.load("./textures/2k_saturn_ring_alpha.png");
+  alphaTex.colorSpace = THREE.SRGBColorSpace;
+  alphaTex.anisotropy = 16;
+
+  const rc = document.createElement("canvas");
+  rc.width = 1024;
+  rc.height = 64;
+  const rctx = rc.getContext("2d");
+
+  const g = rctx.createLinearGradient(0, 0, 1024, 0);
+  g.addColorStop(0.0, "rgba(210,195,165,0.03)");
+  g.addColorStop(0.06, "rgba(220,208,180,0.12)");
+  g.addColorStop(0.1, "rgba(200,188,160,0.06)");
+  g.addColorStop(0.14, "rgba(230,218,190,0.85)");
+  g.addColorStop(0.28, "rgba(240,228,200,0.95)");
+  g.addColorStop(0.44, "rgba(235,222,194,0.90)");
+  g.addColorStop(0.45, "rgba(80,75,65,0.05)");
+  g.addColorStop(0.46, "rgba(235,222,194,0.88)");
+  g.addColorStop(0.62, "rgba(225,212,184,0.82)");
+  g.addColorStop(0.78, "rgba(215,202,174,0.70)");
+  g.addColorStop(0.88, "rgba(205,192,164,0.35)");
+  g.addColorStop(0.95, "rgba(195,182,154,0.12)");
+  g.addColorStop(1.0, "rgba(185,172,144,0.03)");
+  rctx.fillStyle = g;
+  rctx.fillRect(0, 0, 1024, 64);
+
+  for (let i = 0; i < 300; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 64;
+    const w = 1 + Math.random() * 6;
+    const h = 0.5 + Math.random() * 2;
+    const v = 0.7 + Math.random() * 0.3;
+    rctx.fillStyle =
+      "rgba(" +
+      Math.floor(255 * v) +
+      "," +
+      Math.floor(245 * v) +
+      "," +
+      Math.floor(220 * v) +
+      ",0.25)";
+    rctx.fillRect(x, y, w, h);
+  }
+
+  const colorTex = new THREE.Texture(rc);
+  colorTex.colorSpace = THREE.SRGBColorSpace;
+  colorTex.anisotropy = 8;
+  colorTex.needsUpdate = true;
 
   const ring = new THREE.Mesh(
     geo,
     new THREE.MeshStandardMaterial({
-      map: ringTex,
-      alphaMap: ringTex,
+      map: colorTex,
+      alphaMap: alphaTex,
       side: THREE.DoubleSide,
-      roughness: 0.08,
-      metalness: 0.03,
+      roughness: 0.15,
+      metalness: 0.02,
       transparent: true,
       opacity: 1.0,
-      emissive: new THREE.Color(0.7, 0.65, 0.5),
-      emissiveIntensity: 1.0,
-      emissiveMap: ringTex,
       depthWrite: false,
     }),
   );

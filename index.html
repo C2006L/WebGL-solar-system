@@ -1,26 +1,34 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Solar System Simulation — Three.js</title>
-    <link rel="stylesheet" href="css/main.css">
-</head>
-<body>
-
+    <link rel="stylesheet" href="css/main.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
     <div id="loading">Loading Solar System...</div>
     <div id="title">S O L A R &nbsp; S Y S T E M</div>
 
     <div id="info-panel">
-        <span id="fps-display">FPS: --</span>
-        <span>Speed: <span class="speed" id="speed-display">1.0x</span></span>
-        <span>Press H for Help</span>
+      <span id="fps-display">FPS: --</span>
+      <span
+        ><span id="speed-label">Speed</span>:
+        <span class="speed" id="speed-display">1.0x</span></span
+      >
+      <span id="help-hint">Press H for Help</span>
     </div>
 
     <div id="object-info">
-        <div id="object-info-name"></div>
-        <div id="object-info-details"></div>
-        <div id="object-info-close">✕</div>
+      <div id="object-info-name"></div>
+      <div id="object-info-details"></div>
+      <div id="object-info-close">✕</div>
     </div>
 
     <!--
@@ -28,14 +36,14 @@
         three.js 核心库 + 扩展组件（OrbitControls 等）。
     -->
     <script type="importmap">
-        {
-            "imports": {
-                "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
-                "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
-            }
+      {
+        "imports": {
+          "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
         }
+      }
     </script>
 
     <script type="module" src="js/main.js"></script>
-</body>
+  </body>
 </html>

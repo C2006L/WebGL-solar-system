@@ -166,11 +166,21 @@ export function createAnimationLoop(ctx) {
       asteroidBelt.rotation.y += 0.015 * dt;
     }
 
-    // ---- 大气着色器动态更新 ----
-    if (bodyRefs.earthAtmosphere && bodyRefs.earthGroup) {
-      bodyRefs.earthGroup.getWorldPosition(_v2);
-      _v1.set(0, 0, 0).sub(_v2);
-      bodyRefs.earthAtmosphere.material.uniforms.uSunDirection.value.copy(_v1);
+    // ---- 大气着色器动态更新（所有行星大气） ----
+    const atmoList = [
+      bodyRefs.earthAtmosphere,
+      bodyRefs.venusAtmosphere,
+      bodyRefs.jupiterAtmosphere,
+      bodyRefs.saturnAtmosphere,
+      bodyRefs.uranusAtmosphere,
+      bodyRefs.neptuneAtmosphere,
+      bodyRefs.titanAtmosphere,
+    ];
+    _v1.set(0, 0, 0);
+    for (const atmo of atmoList) {
+      if (atmo) {
+        atmo.material.uniforms.uSunDirection.value.copy(_v1);
+      }
     }
 
     // ---- 地球云层缓慢独立旋转 ----

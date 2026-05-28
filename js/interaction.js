@@ -44,7 +44,8 @@ export function initInteraction(
       event.target.closest("#orbit-toggle") ||
       event.target.closest("#object-info") ||
       event.target.closest(".help-overlay") ||
-      event.target.closest("#body-labels")
+      event.target.closest("#body-labels") ||
+      event.target.closest("#lang-toggle")
     )
       return;
 
@@ -63,7 +64,8 @@ export function initInteraction(
       event.target.closest("#orbit-toggle") ||
       event.target.closest("#object-info") ||
       event.target.closest(".help-overlay") ||
-      event.target.closest("#body-labels")
+      event.target.closest("#body-labels") ||
+      event.target.closest("#lang-toggle")
     )
       return;
 

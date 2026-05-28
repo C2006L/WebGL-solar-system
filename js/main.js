@@ -20,12 +20,16 @@ import {
   hideLoading,
   createViewPresetButtons,
   createLightToggleButton,
+  createLangToggleButton,
   toggleHelp,
   createLabelNavigation,
   highlightLabel,
   clearLabelHighlight,
+  updateInfoPanel,
+  updateLoadingText,
 } from "./ui.js";
 import { initInteraction } from "./interaction.js";
+import { t } from "./i18n.js";
 
 try {
   // ---- 1. Three.js 核心对象 ----
@@ -46,6 +50,9 @@ try {
     renderer.capabilities.getMaxAnisotropy();
   }
   document.body.appendChild(renderer.domElement);
+
+  // 设置加载提示语言
+  updateLoadingText();
 
   const { camera, controls } = initCamera(renderer.domElement);
 
@@ -102,7 +109,9 @@ try {
 
   // ---- 10. UI ----
   createViewPresetButtons(applyPreset);
+  createLangToggleButton();
   createLightToggleButton(onLightToggle);
+  updateInfoPanel();
   toggleHelp();
   createLabelNavigation(bodyRefs, onFocusBody);
 
@@ -140,6 +149,5 @@ try {
   console.error("Solar System init error:", err);
   var el = document.getElementById("loading");
   if (el)
-    el.innerHTML =
-      '<p style="color:#ff4444">Error loading. Press F12 for details.</p>';
+    el.innerHTML = '<p style="color:#ff4444">' + t("loadingError") + "</p>";
 }

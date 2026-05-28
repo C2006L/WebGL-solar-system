@@ -11,7 +11,9 @@
 body {
   margin: 0;
   overflow: hidden;
-  font-family: "Segoe UI", "Microsoft YaHei", "PingFang SC", sans-serif;
+  font-family:
+    "Rajdhani", "Orbitron", "Segoe UI", "Microsoft YaHei", "PingFang SC",
+    sans-serif;
   background: #000005;
   cursor: grab;
 }
@@ -98,6 +100,11 @@ canvas {
   align-items: center;
   gap: 6px;
   margin-bottom: 8px;
+  cursor: grab;
+}
+
+.ip-header:active {
+  cursor: grabbing;
 }
 
 .ip-dot {
@@ -109,9 +116,18 @@ canvas {
 }
 
 .ip-icon {
-  font-size: 11px;
-  color: #888;
+  font-size: 9px;
+  font-weight: 600;
+  color: #556;
   flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: 3px;
+  letter-spacing: 0;
 }
 
 .ip-name {
@@ -218,24 +234,6 @@ canvas {
   color: #fff;
 }
 
-.ip-focus-btn {
-  background: rgba(255, 180, 0, 0.15);
-  border: 1px solid rgba(255, 180, 0, 0.35);
-  color: #ffb800;
-  padding: 5px 14px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 11px;
-  font-family: inherit;
-  transition: all 0.25s;
-  letter-spacing: 0.5px;
-}
-
-.ip-focus-btn:hover {
-  background: rgba(255, 180, 0, 0.25);
-  color: #fff;
-}
-
 /* ---- 加载提示 ---- */
 #loading {
   position: fixed;
@@ -320,7 +318,7 @@ canvas {
 /* ---- 轨道开关 ---- */
 #orbit-toggle {
   position: fixed;
-  top: 80px;
+  top: 170px;
   left: 16px;
   z-index: 30;
 }
@@ -344,10 +342,39 @@ canvas {
   color: #fff;
 }
 
+/* ---- 语言切换 ---- */
+#lang-toggle {
+  position: fixed;
+  top: 80px;
+  left: 16px;
+  z-index: 31;
+}
+
+#lang-toggle button {
+  background: rgba(8, 8, 24, 0.7);
+  color: #aaa;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  padding: 7px 14px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  letter-spacing: 1px;
+  transition: all 0.25s;
+  backdrop-filter: blur(8px);
+  font-family: inherit;
+  font-weight: 500;
+}
+
+#lang-toggle button:hover {
+  background: rgba(30, 30, 60, 0.8);
+  color: #fff;
+  border-color: rgba(100, 180, 255, 0.5);
+}
+
 /* ---- 开灯按钮 ---- */
 #light-toggle {
   position: fixed;
-  top: 120px;
+  top: 125px;
   left: 16px;
   z-index: 30;
 }
@@ -404,8 +431,8 @@ canvas {
 .body-label {
   display: flex;
   align-items: center;
-  gap: 7px;
-  padding: 5px 10px;
+  gap: 8px;
+  padding: 6px 12px;
   border-radius: 7px;
   cursor: pointer;
   transition: all 0.25s;
@@ -425,23 +452,29 @@ canvas {
 }
 
 .body-label.moon {
-  padding-left: 22px;
+  padding-left: 24px;
 }
 
 .body-label-dot {
-  width: 7px;
-  height: 7px;
+  width: 8px;
+  height: 8px;
   border-radius: 50%;
   flex-shrink: 0;
   box-shadow: 0 0 4px currentColor;
 }
 
 .body-label-icon {
-  font-size: 10px;
-  color: #666;
+  font-size: 9px;
+  font-weight: 600;
+  color: #556;
   flex-shrink: 0;
-  width: 12px;
-  text-align: center;
+  width: 16px;
+  height: 16px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 2px;
 }
 
 .body-label-info {
@@ -451,7 +484,7 @@ canvas {
 }
 
 .body-label-name {
-  font-size: 11px;
+  font-size: 12px;
   color: #bbb;
   letter-spacing: 0.5px;
   white-space: nowrap;
@@ -464,7 +497,7 @@ canvas {
 }
 
 .body-label-type {
-  font-size: 9px;
+  font-size: 10px;
   color: #555;
   text-transform: capitalize;
   white-space: nowrap;

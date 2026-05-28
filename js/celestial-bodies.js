@@ -29,7 +29,15 @@ import {
   createRheaMaps,
   createTitanMaps,
 } from "./textures.js";
-import { createEarthAtmosphere } from "./atmosphere.js";
+import {
+  createEarthAtmosphere,
+  createVenusAtmosphere,
+  createJupiterAtmosphere,
+  createSaturnAtmosphere,
+  createUranusAtmosphere,
+  createNeptuneAtmosphere,
+  createTitanAtmosphere,
+} from "./atmosphere.js";
 
 function degToRad(deg) {
   return (deg * Math.PI) / 180;
@@ -37,13 +45,16 @@ function degToRad(deg) {
 
 function sunCorona(cfg, radiusMult, colorHex, power, alpha) {
   const geo = new THREE.SphereGeometry(cfg.size * radiusMult, 64, 64);
+  const n = Math.max(1, Math.round(power));
+  let powExpr = "f";
+  for (let i = 1; i < n; i++) powExpr += "*f";
   const mat = new THREE.ShaderMaterial({
     uniforms: { uColor: { value: new THREE.Color(colorHex) } },
     vertexShader: `varying vec3 vN; varying vec3 vP; void main() { vec4 wp = modelMatrix*vec4(position,1.0); vP=wp.xyz; vN=normalize(mat3(modelMatrix)*normal); gl_Position=projectionMatrix*modelViewMatrix*vec4(position,1.0); }`,
     fragmentShader:
-      `varying vec3 vN; varying vec3 vP; uniform vec3 uColor; void main() { vec3 V=normalize(cameraPosition-vP); float f=1.0-abs(dot(V,normalize(vN))); gl_FragColor=vec4(uColor,pow(f,` +
-      power +
-      `)*` +
+      `varying vec3 vN; varying vec3 vP; uniform vec3 uColor; void main() { vec3 V=normalize(cameraPosition-vP); float f=1.0-abs(dot(V,normalize(vN))); float ff=` +
+      powExpr +
+      `; gl_FragColor=vec4(uColor,ff*` +
       alpha +
       `); }`,
     transparent: true,
@@ -427,6 +438,10 @@ export function createCelestialBodies(scene) {
   refs.venus = venus.mesh;
   refs.venusOrbitRadius = BODIES.venus.orbitRadius;
 
+  const venusAtmo = createVenusAtmosphere(BODIES.venus.size);
+  venus.bodyGroup.add(venusAtmo);
+  refs.venusAtmosphere = venusAtmo;
+
   const earth = createPlanet(
     "earth",
     createEarthMaps,
@@ -489,6 +504,10 @@ export function createCelestialBodies(scene) {
   refs.jupiterOrbitRadius = BODIES.jupiter.orbitRadius;
   refs.jupiterRing = jupiter.extras.ring;
 
+  const jupiterAtmo = createJupiterAtmosphere(BODIES.jupiter.size);
+  jupiter.bodyGroup.add(jupiterAtmo);
+  refs.jupiterAtmosphere = jupiterAtmo;
+
   const jMoons = {
     io: createJupiterMoon("io", createIoMaps, jupiter.bodyGroup),
     europa: createJupiterMoon("europa", createEuropaMaps, jupiter.bodyGroup),
@@ -524,6 +543,10 @@ export function createCelestialBodies(scene) {
   refs.saturnOrbitRadius = BODIES.saturn.orbitRadius;
   refs.saturnRing = saturn.extras.ring;
 
+  const saturnAtmo = createSaturnAtmosphere(BODIES.saturn.size);
+  saturn.bodyGroup.add(saturnAtmo);
+  refs.saturnAtmosphere = saturnAtmo;
+
   const uranus = createPlanet(
     "uranus",
     createUranusMaps,
@@ -536,6 +559,10 @@ export function createCelestialBodies(scene) {
   refs.uranusOrbitRadius = BODIES.uranus.orbitRadius;
   refs.uranusRing = uranus.extras.ring;
 
+  const uranusAtmo = createUranusAtmosphere(BODIES.uranus.size);
+  uranus.bodyGroup.add(uranusAtmo);
+  refs.uranusAtmosphere = uranusAtmo;
+
   const neptune = createPlanet(
     "neptune",
     createNeptuneMaps,
@@ -546,6 +573,10 @@ export function createCelestialBodies(scene) {
   refs.neptuneOrbitGroup = neptune.orbitGroup;
   refs.neptune = neptune.mesh;
   refs.neptuneOrbitRadius = BODIES.neptune.orbitRadius;
+
+  const neptuneAtmo = createNeptuneAtmosphere(BODIES.neptune.size);
+  neptune.bodyGroup.add(neptuneAtmo);
+  refs.neptuneAtmosphere = neptuneAtmo;
 
   const marsMoons = [
     createGenericMoon("phobos", createPhobosMaps, mars.bodyGroup),
@@ -562,13 +593,24 @@ export function createCelestialBodies(scene) {
     { key: "tethys", fn: createTethysMaps },
     { key: "dione", fn: createDioneMaps },
     { key: "rhea", fn: createRheaMaps },
-    { key: "titan", fn: createTitanMaps },
   ];
   for (const { key, fn } of satMoons) {
     const moon = createGenericMoon(key, fn, saturn.bodyGroup);
     refs[key + "OrbitGroup"] = moon.orbitGroup;
     refs[key] = moon.mesh;
   }
+
+  const titanMoon = createGenericMoon(
+    "titan",
+    createTitanMaps,
+    saturn.bodyGroup,
+  );
+  refs.titanOrbitGroup = titanMoon.orbitGroup;
+  refs.titan = titanMoon.mesh;
+
+  const titanAtmo = createTitanAtmosphere(BODIES.titan.size);
+  titanMoon.bodyGroup.add(titanAtmo);
+  refs.titanAtmosphere = titanAtmo;
 
   return refs;
 }

@@ -25,9 +25,9 @@ export function createLighting() {
   sunLight.shadow.mapSize.height = 4096;
   sunLight.shadow.camera.near = 0.15;
   sunLight.shadow.camera.far = 180;
-  sunLight.shadow.bias = -0.0004;
-  sunLight.shadow.normalBias = 0.04;
-  sunLight.shadow.radius = 4;
+  sunLight.shadow.bias = -0.0005;
+  sunLight.shadow.normalBias = 0.06;
+  sunLight.shadow.radius = 2;
   sunLight.name = "SunLight";
 
   const fillA = new THREE.DirectionalLight("#7788bb", 0.35);
@@ -53,7 +53,16 @@ export function createLighting() {
   boostAmbient.visible = false;
   boostAmbient.name = "BoostAmbient";
 
-  return { ambient, hemiLight, sunLight, fillA, fillB, fillC, boostHemi, boostAmbient };
+  return {
+    ambient,
+    hemiLight,
+    sunLight,
+    fillA,
+    fillB,
+    fillC,
+    boostHemi,
+    boostAmbient,
+  };
 }
 
 export function toggleFillLight(lights, isOn) {

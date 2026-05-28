@@ -102,24 +102,31 @@ function createJupiterRing(planetSize) {
 }
 
 function createSaturnRing(planetSize) {
-  const geo = new THREE.RingGeometry(planetSize * 1.24, planetSize * 2.27, 384);
+  const innerR = planetSize * 1.24;
+  const outerR = planetSize * 2.27;
+  const geo = new THREE.RingGeometry(innerR, outerR, 384);
   geo.rotateX(-Math.PI / 2);
+
   const loader = new THREE.TextureLoader();
-  const tex = loader.load("./textures/2k_saturn_ring_alpha.png");
-  tex.colorSpace = THREE.SRGBColorSpace;
-  tex.anisotropy = 16;
-  tex.minFilter = THREE.LinearMipmapLinearFilter;
-  tex.magFilter = THREE.LinearFilter;
+  const ringTex = loader.load("./textures/2k_saturn_ring_alpha.png");
+  ringTex.colorSpace = THREE.SRGBColorSpace;
+  ringTex.anisotropy = 16;
+  ringTex.minFilter = THREE.LinearMipmapLinearFilter;
+  ringTex.magFilter = THREE.LinearFilter;
+
   const ring = new THREE.Mesh(
     geo,
     new THREE.MeshStandardMaterial({
-      map: tex,
-      alphaMap: tex,
+      map: ringTex,
+      alphaMap: ringTex,
       side: THREE.DoubleSide,
-      roughness: 0.25,
-      metalness: 0.05,
+      roughness: 0.08,
+      metalness: 0.03,
       transparent: true,
       opacity: 1.0,
+      emissive: new THREE.Color(0.7, 0.65, 0.5),
+      emissiveIntensity: 1.0,
+      emissiveMap: ringTex,
       depthWrite: false,
     }),
   );
@@ -427,7 +434,7 @@ export function createCelestialBodies(scene) {
     "saturn",
     createSaturnMaps,
     { roughness: 0.5, metalness: 0.05 },
-    0.04,
+    0.1,
   );
   scene.add(saturn.inclinationGroup);
   refs.saturnOrbitGroup = saturn.orbitGroup;

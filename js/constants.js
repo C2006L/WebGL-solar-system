@@ -155,8 +155,8 @@ export const BODIES = {
     realPeriod: 10759.2,
     realRadius: 58232,
     color: "#e8d5a0",
-    emissiveHex: "#4a3820",
-    emissiveIntensity: 0.16,
+    emissiveHex: "#5a4830",
+    emissiveIntensity: 0.3,
     description:
       "Iconic ring system: D/C/B/A/F/G/E rings. Main rings span 1.24-2.27 Rs. Composition: >95% water ice particles (cm-m size). Thickness: <100m. Cassini Division gap between B and A rings.",
   },

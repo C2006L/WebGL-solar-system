@@ -385,13 +385,66 @@ export function createJupiterMaps(_size) {
 
 export function createSaturnMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const map = loader.load(TEX + "2k_saturn.jpg");
-  map.colorSpace = THREE.SRGBColorSpace;
-  map.anisotropy = 16;
-  map.minFilter = THREE.LinearMipmapLinearFilter;
-  map.magFilter = THREE.LinearFilter;
-  map.wrapS = THREE.RepeatWrapping;
-  map.wrapT = THREE.ClampToEdgeWrapping;
+  const rawMap = loader.load(TEX + "2k_saturn.jpg");
+  rawMap.colorSpace = THREE.SRGBColorSpace;
+
+  const seamCanvas = document.createElement("canvas");
+  seamCanvas.width = 2048;
+  seamCanvas.height = 1024;
+  const sc = seamCanvas.getContext("2d");
+
+  const blendWidth = 80;
+
+  rawMap.image.addEventListener(
+    "load",
+    function () {
+      sc.drawImage(rawMap.image, 0, 0, 2048, 1024);
+
+      const leftSlice = sc.getImageData(0, 0, blendWidth, 1024);
+      const rightSlice = sc.getImageData(
+        2048 - blendWidth,
+        0,
+        blendWidth,
+        1024,
+      );
+
+      for (let y = 0; y < 1024; y++) {
+        for (let x = 0; x < blendWidth; x++) {
+          const i = (y * blendWidth + x) * 4;
+          const t = x / (blendWidth - 1);
+          const easeT = t < 0.5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+
+          const r = Math.round(
+            leftSlice.data[i] +
+              (rightSlice.data[i] - leftSlice.data[i]) * easeT,
+          );
+          const g = Math.round(
+            leftSlice.data[i + 1] +
+              (rightSlice.data[i + 1] - leftSlice.data[i + 1]) * easeT,
+          );
+          const b = Math.round(
+            leftSlice.data[i + 2] +
+              (rightSlice.data[i + 2] - leftSlice.data[i + 2]) * easeT,
+          );
+
+          sc.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
+          sc.fillRect(0 + x, y, 1, 1);
+          sc.fillRect(2048 - blendWidth + x, y, 1, 1);
+        }
+      }
+      seamTex.needsUpdate = true;
+    },
+    { once: true },
+  );
+
+  const seamTex = new THREE.Texture(seamCanvas);
+  seamTex.colorSpace = THREE.SRGBColorSpace;
+  seamTex.anisotropy = 16;
+  seamTex.minFilter = THREE.LinearMipmapLinearFilter;
+  seamTex.magFilter = THREE.LinearFilter;
+  seamTex.wrapS = THREE.RepeatWrapping;
+  seamTex.wrapT = THREE.ClampToEdgeWrapping;
+  seamTex.needsUpdate = true;
 
   const bumpCanvas = document.createElement("canvas");
   bumpCanvas.width = 1024;
@@ -411,11 +464,11 @@ export function createSaturnMaps(_size) {
     bctx.fillRect(0, y, 1024, h);
 
     if (band % 3 === 0) {
-      for (let x = 0; x < 1024; x += 2 + Math.floor(Math.random() * 4)) {
+      for (let x2 = 0; x2 < 1024; x2 += 2 + Math.floor(Math.random() * 4)) {
         const w = 1 + Math.floor(Math.random() * 3);
         const dy = (Math.random() - 0.5) * h * 0.4;
         bctx.fillStyle = "rgba(60,60,60,0.5)";
-        bctx.fillRect(x, y + dy, w, 1 + Math.random() * 2);
+        bctx.fillRect(x2, y + dy, w, 1 + Math.random() * 2);
       }
     }
   }
@@ -424,14 +477,14 @@ export function createSaturnMaps(_size) {
     const x = Math.random() * 1024;
     const y = Math.random() * 512;
     const r = 0.3 + Math.random() * 1.5;
-    const v = (Math.random() - 0.5) * 30;
+    const v2 = (Math.random() - 0.5) * 30;
     bctx.fillStyle =
       "rgba(" +
-      (90 + Math.floor(v)) +
+      (90 + Math.floor(v2)) +
       "," +
-      (90 + Math.floor(v)) +
+      (90 + Math.floor(v2)) +
       "," +
-      (90 + Math.floor(v)) +
+      (90 + Math.floor(v2)) +
       ",0.4)";
     bctx.beginPath();
     bctx.arc(x, y, r, 0, Math.PI * 2);
@@ -443,7 +496,6 @@ export function createSaturnMaps(_size) {
   edgeBlend.addColorStop(1, "rgba(128,128,128,1)");
   bctx.fillStyle = edgeBlend;
   bctx.fillRect(0, 0, 8, 512);
-
   const edgeBlendR = bctx.createLinearGradient(1016, 0, 1024, 0);
   edgeBlendR.addColorStop(0, "rgba(128,128,128,1)");
   edgeBlendR.addColorStop(1, "rgba(128,128,128,0)");
@@ -453,9 +505,11 @@ export function createSaturnMaps(_size) {
   const bumpMap = new THREE.Texture(bumpCanvas);
   bumpMap.colorSpace = THREE.LinearSRGBColorSpace;
   bumpMap.anisotropy = 16;
+  bumpMap.wrapS = THREE.RepeatWrapping;
+  bumpMap.wrapT = THREE.ClampToEdgeWrapping;
   bumpMap.needsUpdate = true;
 
-  return { map, bumpMap };
+  return { map: seamTex, bumpMap };
 }
 
 export function createUranusMaps(_size) {

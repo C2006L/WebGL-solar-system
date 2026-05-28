@@ -385,20 +385,28 @@ export function createJupiterMaps(_size) {
 
 export function createSaturnMaps(_size) {
   const loader = new THREE.TextureLoader();
-  const rawMap = loader.load(TEX + "2k_saturn.jpg");
-  rawMap.colorSpace = THREE.SRGBColorSpace;
 
   const seamCanvas = document.createElement("canvas");
   seamCanvas.width = 2048;
   seamCanvas.height = 1024;
   const sc = seamCanvas.getContext("2d");
 
+  const seamTex = new THREE.Texture(seamCanvas);
+  seamTex.colorSpace = THREE.SRGBColorSpace;
+  seamTex.anisotropy = 16;
+  seamTex.minFilter = THREE.LinearMipmapLinearFilter;
+  seamTex.magFilter = THREE.LinearFilter;
+  seamTex.wrapS = THREE.RepeatWrapping;
+  seamTex.wrapT = THREE.ClampToEdgeWrapping;
+  seamTex.needsUpdate = true;
+
   const blendWidth = 80;
 
-  rawMap.image.addEventListener(
-    "load",
-    function () {
-      sc.drawImage(rawMap.image, 0, 0, 2048, 1024);
+  loader.load(
+    TEX + "2k_saturn.jpg",
+    function (loadedTex) {
+      loadedTex.colorSpace = THREE.SRGBColorSpace;
+      sc.drawImage(loadedTex.image, 0, 0, 2048, 1024);
 
       const leftSlice = sc.getImageData(0, 0, blendWidth, 1024);
       const rightSlice = sc.getImageData(
@@ -428,23 +436,17 @@ export function createSaturnMaps(_size) {
           );
 
           sc.fillStyle = "rgb(" + r + "," + g + "," + b + ")";
-          sc.fillRect(0 + x, y, 1, 1);
+          sc.fillRect(x, y, 1, 1);
           sc.fillRect(2048 - blendWidth + x, y, 1, 1);
         }
       }
       seamTex.needsUpdate = true;
     },
-    { once: true },
+    undefined,
+    function (err) {
+      console.error("Saturn texture load error:", err);
+    },
   );
-
-  const seamTex = new THREE.Texture(seamCanvas);
-  seamTex.colorSpace = THREE.SRGBColorSpace;
-  seamTex.anisotropy = 16;
-  seamTex.minFilter = THREE.LinearMipmapLinearFilter;
-  seamTex.magFilter = THREE.LinearFilter;
-  seamTex.wrapS = THREE.RepeatWrapping;
-  seamTex.wrapT = THREE.ClampToEdgeWrapping;
-  seamTex.needsUpdate = true;
 
   const bumpCanvas = document.createElement("canvas");
   bumpCanvas.width = 1024;

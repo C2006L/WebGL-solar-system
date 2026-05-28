@@ -21,13 +21,13 @@ export function createLighting() {
   const sunLight = new THREE.PointLight("#fffef5", 280, 0, 1);
   sunLight.position.set(0, 0, 0);
   sunLight.castShadow = true;
-  sunLight.shadow.mapSize.width = 4096;
-  sunLight.shadow.mapSize.height = 4096;
+  sunLight.shadow.mapSize.width = 8192;
+  sunLight.shadow.mapSize.height = 8192;
   sunLight.shadow.camera.near = 0.15;
-  sunLight.shadow.camera.far = 180;
-  sunLight.shadow.bias = -0.0005;
-  sunLight.shadow.normalBias = 0.06;
-  sunLight.shadow.radius = 2;
+  sunLight.shadow.camera.far = 120;
+  sunLight.shadow.bias = -0.0003;
+  sunLight.shadow.normalBias = 0.02;
+  sunLight.shadow.radius = 6;
   sunLight.name = "SunLight";
 
   const fillA = new THREE.DirectionalLight("#7788bb", 0.35);

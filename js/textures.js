@@ -387,8 +387,75 @@ export function createSaturnMaps(_size) {
   const loader = new THREE.TextureLoader();
   const map = loader.load(TEX + "2k_saturn.jpg");
   map.colorSpace = THREE.SRGBColorSpace;
-  map.anisotropy = 8;
-  return { map, bumpMap: null };
+  map.anisotropy = 16;
+  map.minFilter = THREE.LinearMipmapLinearFilter;
+  map.magFilter = THREE.LinearFilter;
+  map.wrapS = THREE.RepeatWrapping;
+  map.wrapT = THREE.ClampToEdgeWrapping;
+
+  const bumpCanvas = document.createElement("canvas");
+  bumpCanvas.width = 1024;
+  bumpCanvas.height = 512;
+  const bctx = bumpCanvas.getContext("2d");
+  bctx.fillStyle = "#808080";
+  bctx.fillRect(0, 0, 1024, 512);
+
+  for (let band = 0; band < 20; band++) {
+    const y = Math.floor(band * (512 / 20));
+    const h = Math.floor(512 / 20);
+    const brightness =
+      100 + Math.floor(Math.sin(band * 0.8) * 40 + Math.random() * 20);
+    const shade =
+      "rgb(" + brightness + "," + brightness + "," + brightness + ")";
+    bctx.fillStyle = shade;
+    bctx.fillRect(0, y, 1024, h);
+
+    if (band % 3 === 0) {
+      for (let x = 0; x < 1024; x += 2 + Math.floor(Math.random() * 4)) {
+        const w = 1 + Math.floor(Math.random() * 3);
+        const dy = (Math.random() - 0.5) * h * 0.4;
+        bctx.fillStyle = "rgba(60,60,60,0.5)";
+        bctx.fillRect(x, y + dy, w, 1 + Math.random() * 2);
+      }
+    }
+  }
+
+  for (let i = 0; i < 200; i++) {
+    const x = Math.random() * 1024;
+    const y = Math.random() * 512;
+    const r = 0.3 + Math.random() * 1.5;
+    const v = (Math.random() - 0.5) * 30;
+    bctx.fillStyle =
+      "rgba(" +
+      (90 + Math.floor(v)) +
+      "," +
+      (90 + Math.floor(v)) +
+      "," +
+      (90 + Math.floor(v)) +
+      ",0.4)";
+    bctx.beginPath();
+    bctx.arc(x, y, r, 0, Math.PI * 2);
+    bctx.fill();
+  }
+
+  const edgeBlend = bctx.createLinearGradient(0, 0, 8, 0);
+  edgeBlend.addColorStop(0, "rgba(128,128,128,0)");
+  edgeBlend.addColorStop(1, "rgba(128,128,128,1)");
+  bctx.fillStyle = edgeBlend;
+  bctx.fillRect(0, 0, 8, 512);
+
+  const edgeBlendR = bctx.createLinearGradient(1016, 0, 1024, 0);
+  edgeBlendR.addColorStop(0, "rgba(128,128,128,1)");
+  edgeBlendR.addColorStop(1, "rgba(128,128,128,0)");
+  bctx.fillStyle = edgeBlendR;
+  bctx.fillRect(1016, 0, 8, 512);
+
+  const bumpMap = new THREE.Texture(bumpCanvas);
+  bumpMap.colorSpace = THREE.LinearSRGBColorSpace;
+  bumpMap.anisotropy = 16;
+  bumpMap.needsUpdate = true;
+
+  return { map, bumpMap };
 }
 
 export function createUranusMaps(_size) {

@@ -48,7 +48,7 @@ function sunCorona(cfg, radiusMult, colorHex, power, alpha) {
 function createSun() {
   const cfg = BODIES.sun;
   const maps = createSunMaps();
-  const geo = new THREE.SphereGeometry(cfg.size, 128, 128);
+  const geo = new THREE.SphereGeometry(cfg.size, 192, 96);
   const mesh = new THREE.Mesh(
     geo,
     new THREE.MeshStandardMaterial({
@@ -102,21 +102,24 @@ function createJupiterRing(planetSize) {
 }
 
 function createSaturnRing(planetSize) {
-  const geo = new THREE.RingGeometry(planetSize * 1.24, planetSize * 2.27, 256);
+  const geo = new THREE.RingGeometry(planetSize * 1.24, planetSize * 2.27, 384);
   geo.rotateX(-Math.PI / 2);
   const loader = new THREE.TextureLoader();
   const tex = loader.load("./textures/2k_saturn_ring_alpha.png");
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 16;
+  tex.minFilter = THREE.LinearMipmapLinearFilter;
+  tex.magFilter = THREE.LinearFilter;
   const ring = new THREE.Mesh(
     geo,
     new THREE.MeshStandardMaterial({
       map: tex,
       alphaMap: tex,
       side: THREE.DoubleSide,
-      roughness: 0.85,
-      metalness: 0.0,
+      roughness: 0.25,
+      metalness: 0.05,
       transparent: true,
-      opacity: 0.92,
+      opacity: 1.0,
       depthWrite: false,
     }),
   );
@@ -126,33 +129,52 @@ function createSaturnRing(planetSize) {
 }
 
 function createUranusRing(planetSize) {
-  const geo = new THREE.RingGeometry(planetSize * 1.3, planetSize * 1.45, 64);
+  const geo = new THREE.RingGeometry(planetSize * 1.6, planetSize * 2.0, 128);
   geo.rotateX(-Math.PI / 2);
   const rc = document.createElement("canvas");
-  rc.width = 256;
-  rc.height = 16;
+  rc.width = 512;
+  rc.height = 32;
   const rctx = rc.getContext("2d");
-  const g = rctx.createLinearGradient(0, 0, 256, 0);
-  g.addColorStop(0, "rgba(160,200,220,0.2)");
-  g.addColorStop(0.3, "rgba(180,210,230,0.5)");
-  g.addColorStop(0.5, "rgba(200,220,235,0.6)");
-  g.addColorStop(0.7, "rgba(170,200,220,0.4)");
-  g.addColorStop(1, "rgba(140,180,200,0.1)");
+
+  rctx.clearRect(0, 0, 512, 32);
+
+  const eps = (1.95 - 1.62) / 13;
+  for (let i = 0; i < 13; i++) {
+    const x0 =
+      i % 2 === 0
+        ? Math.floor(((i * eps) / (1.95 - 1.62)) * 512)
+        : Math.floor((((i + 0.5) * eps) / (1.95 - 1.62)) * 512);
+    const x1 = Math.min(512, x0 + Math.max(8, Math.random() * 20 + 10));
+    const alpha = 0.15 + Math.random() * 0.35;
+    rctx.fillStyle = "rgba(170,200,220," + alpha.toFixed(2) + ")";
+    rctx.fillRect(x0, 0, x1 - x0, 32);
+  }
+
+  const g = rctx.createLinearGradient(0, 0, 512, 0);
+  g.addColorStop(0, "rgba(140,180,210,0.08)");
+  g.addColorStop(0.15, "rgba(160,195,225,0.25)");
+  g.addColorStop(0.3, "rgba(185,215,240,0.45)");
+  g.addColorStop(0.5, "rgba(190,218,242,0.55)");
+  g.addColorStop(0.7, "rgba(175,208,232,0.40)");
+  g.addColorStop(0.85, "rgba(155,192,222,0.22)");
+  g.addColorStop(1, "rgba(130,175,205,0.06)");
   rctx.fillStyle = g;
-  rctx.fillRect(0, 0, 256, 16);
+  rctx.fillRect(0, 0, 512, 32);
+
   const tex = new THREE.Texture(rc);
   tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
   tex.needsUpdate = true;
   const ring = new THREE.Mesh(
     geo,
     new THREE.MeshStandardMaterial({
       map: tex,
       side: THREE.DoubleSide,
-      roughness: 0.9,
-      metalness: 0.0,
+      roughness: 0.4,
+      metalness: 0.05,
       transparent: true,
-      opacity: 0.7,
-      depthWrite: true,
+      opacity: 0.85,
+      depthWrite: false,
     }),
   );
   ring.name = "Uranus_Ring";
@@ -162,7 +184,7 @@ function createUranusRing(planetSize) {
 function createPlanet(bodyKey, mapsFn, materialOpts = {}, bumpScaleVal = 0.02) {
   const cfg = BODIES[bodyKey];
   const maps = mapsFn(2048);
-  const geo = new THREE.SphereGeometry(cfg.size, 128, 128);
+  const geo = new THREE.SphereGeometry(cfg.size, 192, 96);
 
   const matArgs = {
     map: maps.map,
@@ -404,8 +426,8 @@ export function createCelestialBodies(scene) {
   const saturn = createPlanet(
     "saturn",
     createSaturnMaps,
-    { roughness: 0.7, metalness: 0.0 },
-    0.018,
+    { roughness: 0.5, metalness: 0.05 },
+    0.04,
   );
   scene.add(saturn.inclinationGroup);
   refs.saturnOrbitGroup = saturn.orbitGroup;

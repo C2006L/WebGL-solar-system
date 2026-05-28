@@ -1,5 +1,5 @@
 // ============================================================
-// celestial-bodies.js — v10：真实地球贴图 + 云层 + 修复轨道
+// celestial-bodies.js — v22：火星/土星卫星 + 修复行星材质
 // ============================================================
 
 import * as THREE from "three";
@@ -20,6 +20,14 @@ import {
   createEuropaMaps,
   createGanymedeMaps,
   createCallistoMaps,
+  createPhobosMaps,
+  createDeimosMaps,
+  createMimasMaps,
+  createEnceladusMaps,
+  createTethysMaps,
+  createDioneMaps,
+  createRheaMaps,
+  createTitanMaps,
 } from "./textures.js";
 import { createEarthAtmosphere } from "./atmosphere.js";
 
@@ -227,6 +235,41 @@ function createUranusRing(planetSize) {
   return ring;
 }
 
+function createGenericMoon(bodyKey, mapsFn, parentBodyGroup) {
+  const cfg = BODIES[bodyKey];
+  const maps = mapsFn(512);
+  const geo = new THREE.SphereGeometry(cfg.size, 48, 24);
+
+  const matArgs = {
+    map: maps.map,
+    roughness: 0.55,
+    metalness: 0.03,
+  };
+  if (cfg.emissiveHex) {
+    matArgs.emissive = new THREE.Color(cfg.emissiveHex);
+    matArgs.emissiveIntensity = cfg.emissiveIntensity;
+  }
+  if (maps.bumpMap) {
+    matArgs.bumpMap = maps.bumpMap;
+    matArgs.bumpScale = 0.03;
+  }
+  const mesh = new THREE.Mesh(geo, new THREE.MeshStandardMaterial(matArgs));
+  mesh.position.set(cfg.orbitRadius, 0, 0);
+  mesh.rotation.x = degToRad(cfg.axialTilt);
+  mesh.castShadow = true;
+  mesh.receiveShadow = true;
+  mesh.name = cfg.name;
+
+  const bodyGroup = new THREE.Group();
+  bodyGroup.add(mesh);
+  const orbitGroup = new THREE.Group();
+  orbitGroup.rotation.x = degToRad(cfg.orbitalIncl);
+  orbitGroup.add(bodyGroup);
+  parentBodyGroup.add(orbitGroup);
+
+  return { orbitGroup, bodyGroup, mesh };
+}
+
 function createPlanet(bodyKey, mapsFn, materialOpts = {}, bumpScaleVal = 0.02) {
   const cfg = BODIES[bodyKey];
   const maps = mapsFn(2048);
@@ -365,7 +408,7 @@ export function createCelestialBodies(scene) {
   const mercury = createPlanet(
     "mercury",
     createMercuryMaps,
-    { roughness: 0.85, metalness: 0.0 },
+    { roughness: 0.65, metalness: 0.02 },
     0.035,
   );
   scene.add(mercury.inclinationGroup);
@@ -376,7 +419,7 @@ export function createCelestialBodies(scene) {
   const venus = createPlanet(
     "venus",
     createVenusMaps,
-    { roughness: 0.9, metalness: 0.0 },
+    { roughness: 0.7, metalness: 0.0 },
     0.015,
   );
   scene.add(venus.inclinationGroup);
@@ -387,7 +430,7 @@ export function createCelestialBodies(scene) {
   const earth = createPlanet(
     "earth",
     createEarthMaps,
-    { roughness: 0.7, metalness: 0.0 },
+    { roughness: 0.55, metalness: 0.0 },
     0.06,
   );
   scene.add(earth.inclinationGroup);
@@ -425,7 +468,7 @@ export function createCelestialBodies(scene) {
   const mars = createPlanet(
     "mars",
     createMarsMaps,
-    { roughness: 0.7, metalness: 0.0 },
+    { roughness: 0.6, metalness: 0.02 },
     0.03,
   );
   scene.add(mars.inclinationGroup);
@@ -436,7 +479,7 @@ export function createCelestialBodies(scene) {
   const jupiter = createPlanet(
     "jupiter",
     createJupiterMaps,
-    { roughness: 0.7, metalness: 0.0 },
+    { roughness: 0.55, metalness: 0.02 },
     0.022,
   );
   scene.add(jupiter.inclinationGroup);
@@ -484,7 +527,7 @@ export function createCelestialBodies(scene) {
   const uranus = createPlanet(
     "uranus",
     createUranusMaps,
-    { roughness: 0.7, metalness: 0.0 },
+    { roughness: 0.6, metalness: 0.02 },
     0.015,
   );
   scene.add(uranus.inclinationGroup);
@@ -496,13 +539,36 @@ export function createCelestialBodies(scene) {
   const neptune = createPlanet(
     "neptune",
     createNeptuneMaps,
-    { roughness: 0.7, metalness: 0.0 },
+    { roughness: 0.6, metalness: 0.02 },
     0.018,
   );
   scene.add(neptune.inclinationGroup);
   refs.neptuneOrbitGroup = neptune.orbitGroup;
   refs.neptune = neptune.mesh;
   refs.neptuneOrbitRadius = BODIES.neptune.orbitRadius;
+
+  const marsMoons = [
+    createGenericMoon("phobos", createPhobosMaps, mars.bodyGroup),
+    createGenericMoon("deimos", createDeimosMaps, mars.bodyGroup),
+  ];
+  refs.phobosOrbitGroup = marsMoons[0].orbitGroup;
+  refs.phobos = marsMoons[0].mesh;
+  refs.deimosOrbitGroup = marsMoons[1].orbitGroup;
+  refs.deimos = marsMoons[1].mesh;
+
+  const satMoons = [
+    { key: "mimas", fn: createMimasMaps },
+    { key: "enceladus", fn: createEnceladusMaps },
+    { key: "tethys", fn: createTethysMaps },
+    { key: "dione", fn: createDioneMaps },
+    { key: "rhea", fn: createRheaMaps },
+    { key: "titan", fn: createTitanMaps },
+  ];
+  for (const { key, fn } of satMoons) {
+    const moon = createGenericMoon(key, fn, saturn.bodyGroup);
+    refs[key + "OrbitGroup"] = moon.orbitGroup;
+    refs[key] = moon.mesh;
+  }
 
   return refs;
 }

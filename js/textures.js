@@ -514,6 +514,162 @@ export function createSaturnMaps(_size) {
   return { map: seamTex, bumpMap };
 }
 
+function createRockyMoonTexture(
+  size,
+  baseR,
+  baseG,
+  baseB,
+  craterCount,
+  noiseAmount,
+) {
+  const c = document.createElement("canvas");
+  c.width = c.height = size;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "rgb(" + baseR + "," + baseG + "," + baseB + ")";
+  ctx.fillRect(0, 0, size, size);
+  const img = ctx.getImageData(0, 0, size, size);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = (Math.random() - 0.5) * noiseAmount;
+    d[i] = clamp(d[i] + n, 0, 255);
+    d[i + 1] = clamp(d[i + 1] + n * 0.85, 0, 255);
+    d[i + 2] = clamp(d[i + 2] + n * 0.7, 0, 255);
+  }
+  ctx.putImageData(img, 0, 0);
+  for (let i = 0; i < craterCount; i++) {
+    const cx = Math.random() * size;
+    const cy = Math.random() * size;
+    const r = Math.random() * size * 0.12 + 4;
+    const g = ctx.createRadialGradient(cx, cy, r * 0.3, cx, cy, r);
+    g.addColorStop(0, "rgba(0,0,0,0.4)");
+    g.addColorStop(0.5, "rgba(0,0,0,0.1)");
+    g.addColorStop(0.55, "rgba(255,255,255,0.3)");
+    g.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(cx, cy, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const bumpCanvas = document.createElement("canvas");
+  bumpCanvas.width = bumpCanvas.height = size;
+  const bctx = bumpCanvas.getContext("2d");
+  bctx.fillStyle = "#808080";
+  bctx.fillRect(0, 0, size, size);
+  for (let i = 0; i < craterCount; i++) {
+    const cx = Math.random() * size;
+    const cy = Math.random() * size;
+    const r = Math.random() * size * 0.08 + 3;
+    const bg = bctx.createRadialGradient(cx, cy, r * 0.4, cx, cy, r * 1.2);
+    bg.addColorStop(0, "rgba(20,20,20,0.55)");
+    bg.addColorStop(0.55, "rgba(20,20,20,0.2)");
+    bg.addColorStop(0.6, "rgba(235,235,235,0.55)");
+    bg.addColorStop(1, "rgba(128,128,128,0)");
+    bctx.fillStyle = bg;
+    bctx.beginPath();
+    bctx.arc(cx, cy, r * 1.2, 0, Math.PI * 2);
+    bctx.fill();
+  }
+  return {
+    map: canvasToTexture(c),
+    bumpMap: canvasToLinearTexture(bumpCanvas),
+  };
+}
+
+export function createPhobosMaps(size) {
+  return createRockyMoonTexture(size || 1024, 130, 115, 100, 80, 28);
+}
+
+export function createDeimosMaps(size) {
+  return createRockyMoonTexture(size || 1024, 145, 138, 130, 50, 18);
+}
+
+export function createMimasMaps(size) {
+  return createRockyMoonTexture(size || 1024, 200, 196, 190, 100, 16);
+}
+
+export function createEnceladusMaps(size) {
+  const c = document.createElement("canvas");
+  c.width = c.height = size || 1024;
+  const ctx = c.getContext("2d");
+  ctx.fillStyle = "#e8f2fc";
+  ctx.fillRect(0, 0, c.width, c.height);
+  const img = ctx.getImageData(0, 0, c.width, c.height);
+  const d = img.data;
+  for (let i = 0; i < d.length; i += 4) {
+    const n = (Math.random() - 0.5) * 12;
+    d[i] = clamp(d[i] + n, 200, 255);
+    d[i + 1] = clamp(d[i + 1] + n, 220, 255);
+    d[i + 2] = clamp(d[i + 2] + n * 0.6, 230, 255);
+  }
+  ctx.putImageData(img, 0, 0);
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random() * c.width;
+    const y = Math.random() * c.height;
+    const r = Math.random() * 20 + 3;
+    const g = ctx.createRadialGradient(x, y, r * 0.3, x, y, r);
+    g.addColorStop(0, "rgba(255,255,255,0.5)");
+    g.addColorStop(1, "rgba(232,242,252,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  for (let i = 0; i < 15; i++) {
+    const sx = Math.random() * c.width;
+    const sy = Math.random() * c.height * 0.3;
+    const g2 = ctx.createRadialGradient(
+      sx,
+      sy,
+      5,
+      sx,
+      sy,
+      40 + Math.random() * 30,
+    );
+    g2.addColorStop(0, "rgba(180,210,240,0.4)");
+    g2.addColorStop(1, "rgba(232,242,252,0)");
+    ctx.fillStyle = g2;
+    ctx.fillRect(0, 0, c.width, c.height * 0.3);
+  }
+  const bumpCanvas = document.createElement("canvas");
+  bumpCanvas.width = bumpCanvas.height = c.width;
+  const bctx = bumpCanvas.getContext("2d");
+  bctx.fillStyle = "#808080";
+  bctx.fillRect(0, 0, c.width, c.height);
+  for (let i = 0; i < 60; i++) {
+    const cx = Math.random() * c.width;
+    const cy = Math.random() * c.height;
+    const r = Math.random() * 10 + 2;
+    const bg = bctx.createRadialGradient(cx, cy, r * 0.5, cx, cy, r * 1.15);
+    bg.addColorStop(0, "rgba(25,25,25,0.4)");
+    bg.addColorStop(0.6, "rgba(230,230,230,0.5)");
+    bg.addColorStop(1, "rgba(128,128,128,0)");
+    bctx.fillStyle = bg;
+    bctx.beginPath();
+    bctx.arc(cx, cy, r * 1.15, 0, Math.PI * 2);
+    bctx.fill();
+  }
+  return {
+    map: canvasToTexture(c),
+    bumpMap: canvasToLinearTexture(bumpCanvas),
+  };
+}
+
+export function createTethysMaps(size) {
+  return createRockyMoonTexture(size || 1024, 195, 190, 185, 120, 18);
+}
+
+export function createDioneMaps(size) {
+  return createRockyMoonTexture(size || 1024, 200, 196, 190, 90, 22);
+}
+
+export function createRheaMaps(size) {
+  return createRockyMoonTexture(size || 1024, 198, 194, 188, 130, 15);
+}
+
+export function createTitanMaps(size) {
+  return createRockyMoonTexture(size || 1024, 210, 168, 96, 15, 20);
+}
+
 export function createUranusMaps(_size) {
   const loader = new THREE.TextureLoader();
   const map = loader.load(TEX + "2k_uranus.jpg");

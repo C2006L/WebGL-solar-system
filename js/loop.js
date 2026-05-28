@@ -26,6 +26,14 @@ const BODY_UPDATE_MAP = {
   europa: { body: "europa", orbit: "europaOrbitGroup", type: "both" },
   ganymede: { body: "ganymede", orbit: "ganymedeOrbitGroup", type: "both" },
   callisto: { body: "callisto", orbit: "callistoOrbitGroup", type: "both" },
+  phobos: { body: "phobos", orbit: "phobosOrbitGroup", type: "both" },
+  deimos: { body: "deimos", orbit: "deimosOrbitGroup", type: "both" },
+  mimas: { body: "mimas", orbit: "mimasOrbitGroup", type: "both" },
+  enceladus: { body: "enceladus", orbit: "enceladusOrbitGroup", type: "both" },
+  tethys: { body: "tethys", orbit: "tethysOrbitGroup", type: "both" },
+  dione: { body: "dione", orbit: "dioneOrbitGroup", type: "both" },
+  rhea: { body: "rhea", orbit: "rheaOrbitGroup", type: "both" },
+  titan: { body: "titan", orbit: "titanOrbitGroup", type: "both" },
 };
 
 const PRESET_KEY_MAP = {

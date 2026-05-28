@@ -102,12 +102,10 @@ function createJupiterRing(planetSize) {
 }
 
 function createSaturnRing(planetSize) {
-  const geo = new THREE.RingGeometry(planetSize * 1.3, planetSize * 2.2, 192);
+  const geo = new THREE.RingGeometry(planetSize * 1.24, planetSize * 2.27, 256);
   geo.rotateX(-Math.PI / 2);
   const loader = new THREE.TextureLoader();
-  const tex = loader.load(
-    "./textures/2k_saturn_ring_alpha.png",
-  );
+  const tex = loader.load("./textures/2k_saturn_ring_alpha.png");
   tex.colorSpace = THREE.SRGBColorSpace;
   const ring = new THREE.Mesh(
     geo,
@@ -115,10 +113,10 @@ function createSaturnRing(planetSize) {
       map: tex,
       alphaMap: tex,
       side: THREE.DoubleSide,
-      roughness: 0.7,
+      roughness: 0.85,
       metalness: 0.0,
       transparent: true,
-      opacity: 0.9,
+      opacity: 0.92,
       depthWrite: false,
     }),
   );

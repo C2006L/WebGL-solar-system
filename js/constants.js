@@ -157,7 +157,8 @@ export const BODIES = {
     color: "#e8d5a0",
     emissiveHex: "#4a3820",
     emissiveIntensity: 0.16,
-    description: "Famous ring system (ice+rock). Least dense planet.",
+    description:
+      "Iconic ring system: D/C/B/A/F/G/E rings. Main rings span 1.24-2.27 Rs. Composition: >95% water ice particles (cm-m size). Thickness: <100m. Cassini Division gap between B and A rings.",
   },
   uranus: {
     name: "Uranus",

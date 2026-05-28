@@ -53,16 +53,7 @@ export function createLighting() {
   boostAmbient.visible = false;
   boostAmbient.name = "BoostAmbient";
 
-  return {
-    ambient,
-    hemiLight,
-    sunLight,
-    fillA,
-    fillB,
-    fillC,
-    boostHemi,
-    boostAmbient,
-  };
+  return { ambient, hemiLight, sunLight, fillA, fillB, fillC, boostHemi, boostAmbient };
 }
 
 export function toggleFillLight(lights, isOn) {

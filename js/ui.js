@@ -384,14 +384,16 @@ export function refreshLightButton() {
 }
 
 export function createOrbitToggleButton(onToggle) {
+  const existing = document.getElementById("orbit-toggle");
+  if (existing) return;
   const container = document.createElement("div");
   container.id = "orbit-toggle";
   const btn = document.createElement("button");
   let visible = true;
-  btn.textContent = "O Orbits";
+  btn.textContent = t("orbit") + ": " + t("hide");
   btn.addEventListener("click", () => {
     visible = !visible;
-    btn.textContent = "O " + (visible ? "Hide" : "Show") + " Orbits";
+    btn.textContent = t("orbit") + ": " + (visible ? t("hide") : t("show"));
     onToggle(visible);
   });
   container.appendChild(btn);

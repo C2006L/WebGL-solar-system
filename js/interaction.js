@@ -1,10 +1,12 @@
 // ============================================================
-// interaction.js — 鼠标交互（v4：双击聚焦 + Escape取消 + 标签联动）
+// interaction.js — 鼠标交互（v5：单击出卡片 + 双击仅聚焦）
 // ============================================================
 
 import * as THREE from "three";
 import { BODIES } from "./constants.js";
 import { showObjectInfo, hideObjectInfo } from "./ui.js";
+
+const CLICK_DELAY = 220;
 
 export function initInteraction(
   camera,
@@ -15,6 +17,8 @@ export function initInteraction(
 ) {
   const raycaster = new THREE.Raycaster();
   const mouse = new THREE.Vector2();
+  let clickTimer = null;
+  let pendingPick = null;
 
   const pickable = [];
   for (const [key, val] of Object.entries(bodyRefs)) {
@@ -38,36 +42,48 @@ export function initInteraction(
     return null;
   }
 
-  window.addEventListener("click", (event) => {
-    if (
+  function isUIElement(event) {
+    return (
       event.target.closest("#view-presets") ||
       event.target.closest("#orbit-toggle") ||
+      event.target.closest("#light-toggle") ||
       event.target.closest("#object-info") ||
       event.target.closest(".help-overlay") ||
       event.target.closest("#body-labels") ||
       event.target.closest("#lang-toggle")
-    )
-      return;
+    );
+  }
 
-    const result = pick(event);
-    if (result && BODIES[result.key]) {
-      const cfg = BODIES[result.key];
-      showObjectInfo(result.key, event.clientX, event.clientY, cfg);
-    } else {
-      hideObjectInfo();
+  window.addEventListener("click", (event) => {
+    if (isUIElement(event)) return;
+
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+      return;
     }
+
+    pendingPick = pick(event);
+    clickTimer = setTimeout(() => {
+      clickTimer = null;
+      if (pendingPick && BODIES[pendingPick.key]) {
+        const cfg = BODIES[pendingPick.key];
+        showObjectInfo(pendingPick.key, event.clientX, event.clientY, cfg);
+      } else {
+        hideObjectInfo();
+      }
+      pendingPick = null;
+    }, CLICK_DELAY);
   });
 
   window.addEventListener("dblclick", (event) => {
-    if (
-      event.target.closest("#view-presets") ||
-      event.target.closest("#orbit-toggle") ||
-      event.target.closest("#object-info") ||
-      event.target.closest(".help-overlay") ||
-      event.target.closest("#body-labels") ||
-      event.target.closest("#lang-toggle")
-    )
-      return;
+    if (isUIElement(event)) return;
+
+    if (clickTimer) {
+      clearTimeout(clickTimer);
+      clickTimer = null;
+    }
+    pendingPick = null;
 
     const result = pick(event);
     if (result && onFocusBody) {

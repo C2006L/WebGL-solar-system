@@ -49,8 +49,10 @@ const STRINGS = {
     presetFree: "自由视角",
     presetTop: "俯视视角",
 
-    lightOn: "关灯",
-    lightOff: "开灯",
+    lightOn: "关闭银河",
+    lightOff: "银河",
+    hide: "隐藏",
+    show: "显示",
 
     langZh: "中文",
     langEn: "EN",
@@ -123,8 +125,10 @@ const STRINGS = {
     presetFree: "Free View",
     presetTop: "Top View",
 
-    lightOn: "Lights On",
-    lightOff: "Lights Off",
+    lightOn: "Galaxy Off",
+    lightOff: "Galaxy",
+    hide: "Hide",
+    show: "Show",
 
     langZh: "中文",
     langEn: "EN",
@@ -150,7 +154,8 @@ const STRINGS = {
     helpClickDesc: "Show info",
     helpDblClickLabel: "Double-click",
     helpDblClickDesc: "Focus on body",
-    helpFooter: "22 celestial bodies · double-click to focus · click anywhere to close",
+    helpFooter:
+      "22 celestial bodies · double-click to focus · click anywhere to close",
   },
 };
 

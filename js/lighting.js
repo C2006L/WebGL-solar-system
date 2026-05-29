@@ -71,4 +71,17 @@ export function toggleFillLight(lights, isOn) {
   lights.fillC.visible = isOn;
   lights.boostHemi.visible = isOn;
   lights.boostAmbient.visible = isOn;
+  if (isOn) {
+    lights.fillA.intensity = 0.48;
+    lights.fillB.intensity = 0.34;
+    lights.fillC.intensity = 0.26;
+    lights.boostHemi.intensity = 0.32;
+    lights.boostAmbient.intensity = 0.22;
+  } else {
+    lights.fillA.intensity = 0.18;
+    lights.fillB.intensity = 0.12;
+    lights.fillC.intensity = 0.1;
+    lights.boostHemi.intensity = 0.12;
+    lights.boostAmbient.intensity = 0.08;
+  }
 }

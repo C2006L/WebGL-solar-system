@@ -14,12 +14,14 @@ import { createLighting, toggleFillLight } from "./lighting.js";
 import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
 import { createStarField } from "./starfield.js";
+import { createSkybox } from "./skybox.js";
 import { createAsteroidBelt } from "./asteroid-belt.js";
 import { createAnimationLoop } from "./loop.js";
 import {
   hideLoading,
   createViewPresetButtons,
   createLightToggleButton,
+  createOrbitToggleButton,
   createLangToggleButton,
   toggleHelp,
   createLabelNavigation,
@@ -70,6 +72,11 @@ try {
   // ---- 3. 星空 ----
   scene.add(createStarField());
 
+  // ---- 3b. 深空天空盒（开灯时显示）----
+  const skybox = createSkybox();
+  skybox.visible = false;
+  scene.add(skybox);
+
   // ---- 4. 天体模型 ----
   const bodyRefs = createCelestialBodies(scene);
 
@@ -105,12 +112,16 @@ try {
   // ---- 9. 开灯回调 ----
   function onLightToggle(isOn) {
     toggleFillLight(lights, isOn);
+    skybox.visible = isOn;
   }
 
   // ---- 10. UI ----
   createViewPresetButtons(applyPreset);
   createLangToggleButton();
   createLightToggleButton(onLightToggle);
+  createOrbitToggleButton((visible) => {
+    orbitGroup.visible = visible;
+  });
   updateInfoPanel();
   toggleHelp();
   createLabelNavigation(bodyRefs, onFocusBody);

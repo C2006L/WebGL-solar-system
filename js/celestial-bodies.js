@@ -154,13 +154,15 @@ function createJupiterRing(planetSize) {
 
   const ring = new THREE.Mesh(
     geo,
-    new THREE.MeshLambertMaterial({
+    new THREE.MeshStandardMaterial({
       color: new THREE.Color(0xc8b8a8),
       map: tex,
       alphaMap: tex,
       transparent: true,
-      opacity: 0.55,
+      opacity: 0.6,
       side: THREE.DoubleSide,
+      roughness: 1.0,
+      metalness: 0.0,
       depthWrite: false,
     }),
   );
@@ -169,7 +171,7 @@ function createJupiterRing(planetSize) {
   return ring;
 }
 
-/** 土星环：真实 NASA 纹理 + Lambert 光照（暗面可见） */
+/** 土星环：真实 NASA 纹理，哑光冰晶颗粒质感 */
 function createSaturnRing(planetSize) {
   const innerR = planetSize * 1.11;
   const outerR = planetSize * 2.34;
@@ -183,12 +185,14 @@ function createSaturnRing(planetSize) {
 
   const ring = new THREE.Mesh(
     geo,
-    new THREE.MeshLambertMaterial({
-      color: new THREE.Color(0xf0e4d0),
+    new THREE.MeshStandardMaterial({
+      color: new THREE.Color(0xf5ede0),
       alphaMap: alphaMap,
       transparent: true,
-      opacity: 0.92,
+      opacity: 1.0,
       side: THREE.DoubleSide,
+      roughness: 1.0,
+      metalness: 0.0,
       depthWrite: false,
     }),
   );
@@ -249,13 +253,15 @@ function createUranusRing(planetSize) {
 
   const ring = new THREE.Mesh(
     geo,
-    new THREE.MeshLambertMaterial({
+    new THREE.MeshStandardMaterial({
       color: new THREE.Color(0xece8e2),
       map: tex,
       alphaMap: tex,
       transparent: true,
-      opacity: 0.88,
+      opacity: 0.92,
       side: THREE.DoubleSide,
+      roughness: 1.0,
+      metalness: 0.0,
       depthWrite: false,
     }),
   );

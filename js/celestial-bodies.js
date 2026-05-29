@@ -119,11 +119,11 @@ function makeRingTexture(width, fillFn) {
   return tex;
 }
 
-/** 木星环：极暗弥散红褐色尘埃（岩石颗粒，非水冰） */
+/** 木星环：极暗弥散尘埃 */
 function createJupiterRing(planetSize) {
   const innerR = planetSize * 1.72;
   const outerR = planetSize * 1.82;
-  const geo = new THREE.RingGeometry(innerR, outerR, 128);
+  const geo = new THREE.RingGeometry(innerR, outerR, 128, 64);
   geo.rotateX(-Math.PI / 2);
 
   const tex = makeRingTexture(512, (imgData, w) => {
@@ -132,38 +132,36 @@ function createJupiterRing(planetSize) {
       const r_Rs = 1.72 + t * (1.82 - 1.72);
       let a = 0;
 
-      // 光环 Halo（弥散球形）
       if (r_Rs < 1.74) {
-        a = 0.02 + Math.random() * 0.03;
-      }
-      // 主环
-      else if (r_Rs < 1.8) {
-        a = 0.04 + Math.random() * 0.04;
-      }
-      // 薄纱环 Gossamer
-      else {
-        a = 0.02 + Math.random() * 0.03;
+        a = 0.04 + Math.random() * 0.03;
+      } else if (r_Rs < 1.8) {
+        a = 0.07 + Math.random() * 0.04;
+      } else {
+        a = 0.04 + Math.random() * 0.03;
       }
 
-      // 红褐色（尘埃）
-      const rr = 155 + Math.floor(Math.random() * 20);
-      const gg = 125 + Math.floor(Math.random() * 15);
-      const bb = 95 + Math.floor(Math.random() * 15);
-      putRadialPixel(imgData, px, rr, gg, bb, Math.floor(a * 255));
+      const base = 170 + Math.floor(Math.random() * 25);
+      putRadialPixel(
+        imgData,
+        px,
+        base,
+        base - 10,
+        base - 20,
+        Math.floor(a * 255),
+      );
     }
   });
 
   const ring = new THREE.Mesh(
     geo,
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
+      color: new THREE.Color(0xc8b8a8),
       map: tex,
       alphaMap: tex,
-      alphaTest: 0.015,
+      transparent: true,
+      opacity: 0.55,
       side: THREE.DoubleSide,
-      roughness: 0.95,
-      metalness: 0.0,
-      transparent: false,
-      depthWrite: true,
+      depthWrite: false,
     }),
   );
   ring.renderOrder = 1;
@@ -171,87 +169,27 @@ function createJupiterRing(planetSize) {
   return ring;
 }
 
-/** 土星环：NASA 卡西尼号真实结构 */
+/** 土星环：真实 NASA 纹理 + Lambert 光照（暗面可见） */
 function createSaturnRing(planetSize) {
-  // 扩展范围：D 环 (1.11 Rs) → F 环 (~2.32 Rs)
   const innerR = planetSize * 1.11;
   const outerR = planetSize * 2.34;
-  const geo = new THREE.RingGeometry(innerR, outerR, 512);
+  const geo = new THREE.RingGeometry(innerR, outerR, 384, 192);
   geo.rotateX(-Math.PI / 2);
 
-  const tex = makeRingTexture(2048, (imgData, w) => {
-    for (let px = 0; px < w; px++) {
-      const t = px / (w - 1);
-      const r_Rs = 1.11 + t * (2.34 - 1.11);
-      let a = 0;
-      let R = 210,
-        G = 200,
-        B = 185;
-
-      if (r_Rs >= 1.11 && r_Rs < 1.24) {
-        // D 环：极暗，几乎不可见
-        a = 0.06 + Math.random() * 0.05;
-        R = 155;
-        G = 150;
-        B = 142;
-      } else if (r_Rs >= 1.24 && r_Rs < 1.53) {
-        // C 环：半透明灰
-        a = 0.3 + Math.random() * 0.12;
-        R = 190;
-        G = 183;
-        B = 173;
-      } else if (r_Rs >= 1.53 && r_Rs < 1.95) {
-        // B 环：最亮最密，奶油白色
-        a = 0.9 + Math.random() * 0.1;
-        R = 242;
-        G = 235;
-        B = 222;
-      } else if (r_Rs >= 1.95 && r_Rs < 2.03) {
-        // 卡西尼缝隙：宽阔黑暗空隙
-        a = 0.01;
-        R = 60;
-        G = 55;
-        B = 48;
-      } else if (r_Rs >= 2.03 && r_Rs < 2.27) {
-        // A 环：明亮但较 B 环透明
-        a = 0.68 + Math.random() * 0.14;
-        R = 232;
-        G = 225;
-        B = 210;
-        // 恩克缝隙 (~2.21 Rs)
-        if (r_Rs > 2.205 && r_Rs < 2.218) {
-          a = 0.03;
-        }
-      } else if (r_Rs >= 2.27 && r_Rs < 2.3) {
-        // A 环外侧 → F 环之间：极暗空隙
-        a = 0.015;
-      } else if (r_Rs >= 2.3 && r_Rs < 2.34) {
-        // F 环：极细窄，有轻微扭结感
-        const center = 2.32;
-        const dist = Math.abs(r_Rs - center);
-        if (dist < 0.012) {
-          a = 0.45 * (1 - dist / 0.012) + Math.random() * 0.12;
-          R = 225;
-          G = 218;
-          B = 202;
-        }
-      }
-
-      putRadialPixel(imgData, px, R, G, B, Math.floor(a * 255));
-    }
-  });
+  const loader = new THREE.TextureLoader();
+  const alphaMap = loader.load("./textures/2k_saturn_ring_alpha.png");
+  alphaMap.colorSpace = THREE.SRGBColorSpace;
+  alphaMap.anisotropy = 16;
 
   const ring = new THREE.Mesh(
     geo,
-    new THREE.MeshStandardMaterial({
-      map: tex,
-      alphaMap: tex,
-      alphaTest: 0.008,
+    new THREE.MeshLambertMaterial({
+      color: new THREE.Color(0xf0e4d0),
+      alphaMap: alphaMap,
+      transparent: true,
+      opacity: 0.92,
       side: THREE.DoubleSide,
-      roughness: 0.25,
-      metalness: 0.02,
-      transparent: false,
-      depthWrite: true,
+      depthWrite: false,
     }),
   );
   ring.renderOrder = 1;
@@ -261,33 +199,32 @@ function createSaturnRing(planetSize) {
 
 /** 天王星环：旅行者2号数据，13 条不等宽 */
 function createUranusRing(planetSize) {
-  const innerR = planetSize * 1.58;
-  const outerR = planetSize * 2.05;
-  const geo = new THREE.RingGeometry(innerR, outerR, 256);
+  const innerR = planetSize * 1.55;
+  const outerR = planetSize * 2.15;
+  // 增加 radialSegments=96 消除条纹
+  const geo = new THREE.RingGeometry(innerR, outerR, 192, 96);
   geo.rotateX(-Math.PI / 2);
 
-  // 13 条环：中心位置(Rs)、半宽(Rs)、峰值透明度
-  // ε 环最宽最亮，其余窄而暗
   const rings = [
-    { c: 1.602, w: 0.004, a: 0.1 }, // 6
-    { c: 1.618, w: 0.004, a: 0.08 }, // 5
-    { c: 1.638, w: 0.005, a: 0.12 }, // 4
-    { c: 1.658, w: 0.004, a: 0.09 }, // α
-    { c: 1.678, w: 0.005, a: 0.11 }, // β
-    { c: 1.698, w: 0.004, a: 0.08 }, // η
-    { c: 1.718, w: 0.003, a: 0.07 }, // γ
-    { c: 1.738, w: 0.004, a: 0.09 }, // δ
-    { c: 1.758, w: 0.003, a: 0.06 }, // λ
-    { c: 1.788, w: 0.004, a: 0.08 }, // ε-inner
-    { c: 1.818, w: 0.005, a: 0.1 }, // ε-center
-    { c: 1.848, w: 0.004, a: 0.07 }, // ε-outer
-    { c: 1.962, w: 0.028, a: 0.6 }, // ε 环主体：最宽最亮
+    { c: 1.57, w: 0.006, a: 0.25 },
+    { c: 1.595, w: 0.006, a: 0.22 },
+    { c: 1.62, w: 0.008, a: 0.3 },
+    { c: 1.645, w: 0.006, a: 0.26 },
+    { c: 1.67, w: 0.008, a: 0.28 },
+    { c: 1.695, w: 0.006, a: 0.22 },
+    { c: 1.72, w: 0.005, a: 0.18 },
+    { c: 1.745, w: 0.006, a: 0.24 },
+    { c: 1.77, w: 0.005, a: 0.16 },
+    { c: 1.805, w: 0.006, a: 0.22 },
+    { c: 1.84, w: 0.008, a: 0.28 },
+    { c: 1.875, w: 0.006, a: 0.18 },
+    { c: 1.98, w: 0.05, a: 0.85 },
   ];
 
   const tex = makeRingTexture(1024, (imgData, w) => {
     for (let px = 0; px < w; px++) {
       const t = px / (w - 1);
-      const r_Rs = 1.58 + t * (2.05 - 1.58);
+      const r_Rs = 1.55 + t * (2.15 - 1.55);
       let a = 0;
 
       for (const ring of rings) {
@@ -298,25 +235,28 @@ function createUranusRing(planetSize) {
         }
       }
 
-      // 蓝灰色水冰颗粒
-      const rr = 155 + Math.floor(Math.random() * 35);
-      const gg = 180 + Math.floor(Math.random() * 35);
-      const bb = 205 + Math.floor(Math.random() * 30);
-      putRadialPixel(imgData, px, rr, gg, bb, Math.floor(a * 255));
+      const base = 210 + Math.floor(Math.random() * 25);
+      putRadialPixel(
+        imgData,
+        px,
+        base,
+        base - 3,
+        base - 8,
+        Math.floor(a * 255),
+      );
     }
   });
 
   const ring = new THREE.Mesh(
     geo,
-    new THREE.MeshStandardMaterial({
+    new THREE.MeshLambertMaterial({
+      color: new THREE.Color(0xece8e2),
       map: tex,
       alphaMap: tex,
-      alphaTest: 0.015,
+      transparent: true,
+      opacity: 0.88,
       side: THREE.DoubleSide,
-      roughness: 0.35,
-      metalness: 0.04,
-      transparent: false,
-      depthWrite: true,
+      depthWrite: false,
     }),
   );
   ring.name = "Uranus_Ring";

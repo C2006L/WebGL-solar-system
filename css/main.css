@@ -15,11 +15,11 @@ body {
     "Rajdhani", "Orbitron", "Segoe UI", "Microsoft YaHei", "PingFang SC",
     sans-serif;
   background: #000005;
-  cursor: grab;
+  cursor: crosshair;
 }
 
 body:active {
-  cursor: grabbing;
+  cursor: crosshair;
 }
 
 canvas {

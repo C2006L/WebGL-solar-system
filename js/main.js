@@ -34,7 +34,7 @@ import { t } from "./i18n.js";
 try {
   // ---- 1. Three.js 核心对象 ----
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x020210);
+  scene.background = new THREE.Color(0x000005);
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -45,7 +45,7 @@ try {
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.15;
+  renderer.toneMappingExposure = 0.95;
   if (renderer.capabilities.getMaxAnisotropy) {
     renderer.capabilities.getMaxAnisotropy();
   }

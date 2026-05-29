@@ -13,9 +13,9 @@
 import * as THREE from "three";
 
 export function createLighting() {
-  const ambient = new THREE.AmbientLight("#2a2a4a", 0.65);
+  const ambient = new THREE.AmbientLight("#1a1a2a", 0.3);
 
-  const hemiLight = new THREE.HemisphereLight("#5588cc", "#443322", 0.38);
+  const hemiLight = new THREE.HemisphereLight("#445577", "#2a2015", 0.15);
   hemiLight.name = "HemisphereLight";
 
   const sunLight = new THREE.PointLight("#fffef5", 280, 0, 1);
@@ -30,26 +30,26 @@ export function createLighting() {
   sunLight.shadow.radius = 6;
   sunLight.name = "SunLight";
 
-  const fillA = new THREE.DirectionalLight("#7788bb", 0.35);
+  const fillA = new THREE.DirectionalLight("#7788bb", 0.18);
   fillA.position.set(20, 25, 15);
   fillA.visible = false;
   fillA.name = "FillA";
 
-  const fillB = new THREE.DirectionalLight("#8899aa", 0.25);
+  const fillB = new THREE.DirectionalLight("#8899aa", 0.12);
   fillB.position.set(-18, 10, -12);
   fillB.visible = false;
   fillB.name = "FillB";
 
-  const fillC = new THREE.DirectionalLight("#6677aa", 0.2);
+  const fillC = new THREE.DirectionalLight("#6677aa", 0.1);
   fillC.position.set(5, -15, 20);
   fillC.visible = false;
   fillC.name = "FillC";
 
-  const boostHemi = new THREE.HemisphereLight("#6699cc", "#554433", 0.3);
+  const boostHemi = new THREE.HemisphereLight("#557799", "#443322", 0.12);
   boostHemi.visible = false;
   boostHemi.name = "BoostHemi";
 
-  const boostAmbient = new THREE.AmbientLight("#2a2a4a", 0.2);
+  const boostAmbient = new THREE.AmbientLight("#1a1a2a", 0.08);
   boostAmbient.visible = false;
   boostAmbient.name = "BoostAmbient";
 

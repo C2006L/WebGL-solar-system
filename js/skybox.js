@@ -41,7 +41,7 @@ export function createSkybox() {
   texture.minFilter = THREE.LinearFilter;
   texture.magFilter = THREE.LinearFilter;
 
-  const geo = new THREE.SphereGeometry(3000, 64, 32);
+  const geo = new THREE.SphereGeometry(3000, 32, 16);
   const mat = new THREE.MeshBasicMaterial({
     map: texture,
     side: THREE.BackSide,

@@ -123,7 +123,7 @@ function makeRingTexture(width, fillFn) {
 function createJupiterRing(planetSize) {
   const innerR = planetSize * 1.72;
   const outerR = planetSize * 1.82;
-  const geo = new THREE.RingGeometry(innerR, outerR, 128, 64);
+  const geo = new THREE.RingGeometry(innerR, outerR, 128, 8);
   geo.rotateX(-Math.PI / 2);
 
   const tex = makeRingTexture(512, (imgData, w) => {
@@ -175,7 +175,7 @@ function createJupiterRing(planetSize) {
 function createSaturnRing(planetSize) {
   const innerR = planetSize * 1.11;
   const outerR = planetSize * 2.34;
-  const geo = new THREE.RingGeometry(innerR, outerR, 384, 192);
+  const geo = new THREE.RingGeometry(innerR, outerR, 384, 12);
   geo.rotateX(-Math.PI / 2);
 
   const loader = new THREE.TextureLoader();
@@ -206,7 +206,7 @@ function createUranusRing(planetSize) {
   const innerR = planetSize * 1.55;
   const outerR = planetSize * 2.15;
   // 增加 radialSegments=96 消除条纹
-  const geo = new THREE.RingGeometry(innerR, outerR, 192, 96);
+  const geo = new THREE.RingGeometry(innerR, outerR, 192, 10);
   geo.rotateX(-Math.PI / 2);
 
   const rings = [

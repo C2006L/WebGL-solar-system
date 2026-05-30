@@ -1,10 +1,11 @@
 // ============================================================
-// interaction.js — 鼠标交互（v5：单击出卡片 + 双击仅聚焦）
+// interaction.js — 鼠标交互（v6：强制跟随不打断）
 // ============================================================
 
 import * as THREE from "three";
 import { BODIES } from "./constants.js";
 import { showObjectInfo, hideObjectInfo } from "./ui.js";
+import { isForceFollow } from "./camera.js";
 
 const CLICK_DELAY = 220;
 
@@ -71,6 +72,9 @@ export function initInteraction(
         showObjectInfo(pendingPick.key, event.clientX, event.clientY, cfg);
       } else {
         hideObjectInfo();
+        if (!isForceFollow() && onFocusBody) {
+          onFocusBody(null);
+        }
       }
       pendingPick = null;
     }, CLICK_DELAY);

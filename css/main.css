@@ -470,6 +470,16 @@ canvas {
   border-color: rgba(255, 180, 0, 0.45);
 }
 
+.body-label.force-follow-active {
+  background: linear-gradient(135deg, rgba(200, 150, 20, 0.35), rgba(180, 130, 10, 0.4));
+  border-color: rgba(230, 190, 50, 0.6);
+  box-shadow: 0 0 12px rgba(230, 190, 50, 0.25);
+}
+
+.body-label.force-follow-active .body-label-name {
+  color: #ffd54a;
+}
+
 .body-label.moon {
   padding-left: 24px;
 }

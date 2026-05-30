@@ -9,6 +9,8 @@ import {
   handleResize,
   focusOnBody,
   clearFocus,
+  setForceFollow,
+  isForceFollow,
 } from "./camera.js";
 import { createLighting, toggleFillLight } from "./lighting.js";
 import { createCelestialBodies } from "./celestial-bodies.js";
@@ -27,6 +29,7 @@ import {
   createLabelNavigation,
   highlightLabel,
   clearLabelHighlight,
+  clearForceFollowHighlight,
   updateInfoPanel,
   updateLoadingText,
 } from "./ui.js";
@@ -93,14 +96,30 @@ try {
     if (bodyKey === null) {
       clearFocus();
       clearLabelHighlight();
+      clearForceFollowHighlight();
       return;
     }
     const mesh = bodyRefs[bodyKey];
     if (!mesh) return;
-    focusOnBody(camera, controls, mesh, bodyKey);
+    focusOnBody(camera, controls, mesh, bodyKey, false);
     highlightLabel(bodyKey);
   }
   window._onFocusBody = onFocusBody;
+
+  // ---- 7b. 强制跟随回调（双击标签触发） ----
+  function onForceFollow(bodyKey, isForce) {
+    if (bodyKey === null || !isForce) {
+      clearFocus();
+      clearLabelHighlight();
+      clearForceFollowHighlight();
+      setForceFollow(false);
+      return;
+    }
+    const mesh = bodyRefs[bodyKey];
+    if (!mesh) return;
+    focusOnBody(camera, controls, mesh, bodyKey, true);
+    highlightLabel(bodyKey);
+  }
 
   // ---- 8. 视角预设包装 ----
   function applyPreset(presetKey) {
@@ -124,15 +143,18 @@ try {
   });
   updateInfoPanel();
   toggleHelp();
-  createLabelNavigation(bodyRefs, onFocusBody);
+  createLabelNavigation(bodyRefs, onFocusBody, onForceFollow);
 
   // ---- 11. 交互 ----
   initInteraction(camera, renderer, bodyRefs, controls, onFocusBody);
 
-  // ---- 12. 用户手动操控时取消聚焦 ----
+  // ---- 12. 用户手动操控时取消聚焦（强制跟随模式下不打断） ----
   controls.addEventListener("start", () => {
-    clearFocus();
-    clearLabelHighlight();
+    if (!isForceFollow()) {
+      clearFocus();
+      clearLabelHighlight();
+      clearForceFollowHighlight();
+    }
   });
 
   // ---- 13. 启动动画循环 ----

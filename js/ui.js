@@ -465,8 +465,9 @@ const LABEL_ORDER = [
 const TYPE_ICONS = { star: "S", planet: "P", moon: "M" };
 
 let labelContainer = null;
+let currentForceFollowKey = null;
 
-export function createLabelNavigation(bodyRefs, onFocusBody) {
+export function createLabelNavigation(bodyRefs, onFocusBody, onForceFollow) {
   labelContainer = document.createElement("div");
   labelContainer.id = "body-labels";
 
@@ -512,11 +513,40 @@ export function createLabelNavigation(bodyRefs, onFocusBody) {
       if (onFocusBody) onFocusBody(item.key);
     });
 
+    label.addEventListener("dblclick", (e) => {
+      e.stopPropagation();
+      if (currentForceFollowKey === item.key) {
+        label.classList.remove("force-follow-active");
+        currentForceFollowKey = null;
+        if (onForceFollow) onForceFollow(null, false);
+      } else {
+        if (currentForceFollowKey) {
+          const prevLabel = labelContainer.querySelector(
+            `[data-key="${currentForceFollowKey}"]`
+          );
+          if (prevLabel) prevLabel.classList.remove("force-follow-active");
+        }
+        label.classList.add("force-follow-active");
+        currentForceFollowKey = item.key;
+        if (onForceFollow) onForceFollow(item.key, true);
+      }
+    });
+
     labelContainer.appendChild(label);
   }
 
   document.body.appendChild(labelContainer);
   return labelContainer;
+}
+
+export function clearForceFollowHighlight() {
+  if (currentForceFollowKey && labelContainer) {
+    const prevLabel = labelContainer.querySelector(
+      `[data-key="${currentForceFollowKey}"]`
+    );
+    if (prevLabel) prevLabel.classList.remove("force-follow-active");
+    currentForceFollowKey = null;
+  }
 }
 
 function typeText(rawType, realRadius) {

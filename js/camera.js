@@ -48,6 +48,7 @@ export function handleResize(camera, renderer) {
 }
 
 let focusState = null;
+let forceFollow = false;
 
 const _focusV1 = new THREE.Vector3();
 const _focusV2 = new THREE.Vector3();
@@ -92,7 +93,7 @@ function smoothDamp(
   current.z += changeZ * exp + tempZ * (1 - exp);
 }
 
-export function focusOnBody(camera, controls, bodyRef, bodyKey) {
+export function focusOnBody(camera, controls, bodyRef, bodyKey, isForce = false) {
   if (!bodyRef || !BODIES[bodyKey]) return;
 
   bodyRef.getWorldPosition(_focusV1);
@@ -110,6 +111,7 @@ export function focusOnBody(camera, controls, bodyRef, bodyKey) {
     smoothTime: cfg.type === "moon" ? 0.35 : 0.25,
     maxSpeed: cfg.type === "moon" ? 8 : 12,
     orbitSpeed: cfg.orbitSpeed || 0,
+    viewDist,
   };
 
   _smoothVelPos.set(0, 0, 0);
@@ -117,6 +119,15 @@ export function focusOnBody(camera, controls, bodyRef, bodyKey) {
   _prevTarget.copy(_focusV1);
 
   controls.autoRotate = false;
+  forceFollow = isForce;
+}
+
+export function setForceFollow(value) {
+  forceFollow = value;
+}
+
+export function isForceFollow() {
+  return forceFollow;
 }
 
 export function updateFocusAnimation(camera, controls, delta) {
@@ -126,16 +137,12 @@ export function updateFocusAnimation(camera, controls, delta) {
   focusState.bodyRef.getWorldPosition(_focusV1);
 
   const cfg = BODIES[focusState.bodyKey];
-  const viewDist = Math.max(cfg.size * 5, 2.5);
+  const viewDist = focusState.viewDist || Math.max(cfg.size * 5, 2.5);
   const orbitSpeed = Math.abs(focusState.orbitSpeed);
 
   const speedFactor = Math.max(1, orbitSpeed / 5);
   const dynamicSmoothTime = focusState.smoothTime * speedFactor;
   const dynamicMaxSpeed = focusState.maxSpeed * (1 + speedFactor * 0.3);
-
-  _focusV2
-    .copy(_focusV1)
-    .add(new THREE.Vector3(viewDist * 0.6, viewDist * 0.45, viewDist * 0.8));
 
   if (focusState.transitioning) {
     focusState.progress += clampedDelta / focusState.duration;
@@ -145,37 +152,47 @@ export function updateFocusAnimation(camera, controls, delta) {
     }
 
     const t = easeOutCubic(focusState.progress);
+    _focusV2.copy(_focusV1).add(
+      new THREE.Vector3(viewDist * 0.6, viewDist * 0.45, viewDist * 0.8)
+    );
     camera.position.lerpVectors(focusState.startPos, _focusV2, t);
     controls.target.lerpVectors(focusState.startTarget, _focusV1, t);
   } else {
-    smoothDamp(
-      controls.target,
-      _focusV1,
-      _smoothVelTarget,
-      dynamicSmoothTime,
-      clampedDelta,
-      dynamicMaxSpeed,
-    );
+    if (forceFollow) {
+      controls.target.copy(_focusV1);
+    } else {
+      smoothDamp(
+        controls.target,
+        _focusV1,
+        _smoothVelTarget,
+        dynamicSmoothTime,
+        clampedDelta,
+        dynamicMaxSpeed,
+      );
 
-    smoothDamp(
-      camera.position,
-      _focusV2,
-      _smoothVelPos,
-      dynamicSmoothTime * 1.2,
-      clampedDelta,
-      dynamicMaxSpeed * 0.8,
-    );
+      _focusV2.copy(_focusV1).add(
+        new THREE.Vector3(viewDist * 0.6, viewDist * 0.45, viewDist * 0.8)
+      );
+      smoothDamp(
+        camera.position,
+        _focusV2,
+        _smoothVelPos,
+        dynamicSmoothTime * 1.2,
+        clampedDelta,
+        dynamicMaxSpeed * 0.8,
+      );
 
-    const distToTarget = camera.position.distanceTo(controls.target);
-    if (distToTarget > viewDist * 3) {
-      const emergencyLerp = 0.08;
-      camera.position.lerp(_focusV2, emergencyLerp);
+      const distToTarget = camera.position.distanceTo(controls.target);
+      if (distToTarget > viewDist * 3) {
+        camera.position.lerp(_focusV2, 0.08);
+      }
     }
   }
 }
 
 export function clearFocus() {
   focusState = null;
+  forceFollow = false;
   _smoothVelPos.set(0, 0, 0);
   _smoothVelTarget.set(0, 0, 0);
 }

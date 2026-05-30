@@ -279,6 +279,9 @@ export function toggleHelp() {
     <div class="section-title">${t("helpMouseSection")}</div>
     <div><b>${t("helpClickLabel")}</b> — ${t("helpClickDesc")}</div>
     <div><b>${t("helpDblClickLabel")}</b> — ${t("helpDblClickDesc")}</div>
+    <div class="section-title">${t("helpLabelSection") || "标签按钮"}</div>
+    <div><b>${t("helpLabelClickLabel")}</b> — ${t("helpLabelClickDesc")}</div>
+    <div><b>${t("helpLabelDblClickLabel")}</b> — ${t("helpLabelDblClickDesc")}</div>
     <div style="margin-top:14px;color:#777;font-size:11px;">${t("helpFooter")}</div>
   `;
   div.addEventListener("click", () => div.remove());
@@ -522,7 +525,7 @@ export function createLabelNavigation(bodyRefs, onFocusBody, onForceFollow) {
       } else {
         if (currentForceFollowKey) {
           const prevLabel = labelContainer.querySelector(
-            `[data-key="${currentForceFollowKey}"]`
+            `[data-key="${currentForceFollowKey}"]`,
           );
           if (prevLabel) prevLabel.classList.remove("force-follow-active");
         }
@@ -542,7 +545,7 @@ export function createLabelNavigation(bodyRefs, onFocusBody, onForceFollow) {
 export function clearForceFollowHighlight() {
   if (currentForceFollowKey && labelContainer) {
     const prevLabel = labelContainer.querySelector(
-      `[data-key="${currentForceFollowKey}"]`
+      `[data-key="${currentForceFollowKey}"]`,
     );
     if (prevLabel) prevLabel.classList.remove("force-follow-active");
     currentForceFollowKey = null;

@@ -78,6 +78,11 @@ const STRINGS = {
     helpClickDesc: "查看信息",
     helpDblClickLabel: "双击星球",
     helpDblClickDesc: "聚焦天体",
+    helpLabelClickLabel: "单击右侧按钮",
+    helpLabelClickDesc: "查看信息卡片",
+    helpLabelDblClickLabel: "双击右侧按钮",
+    helpLabelDblClickDesc: "锁定跟踪天体（再次双击退出）",
+    helpLabelSection: "标签按钮",
     helpFooter: "22个天体 · 双击聚焦 · 点击空白处关闭面板",
   },
 
@@ -154,6 +159,11 @@ const STRINGS = {
     helpClickDesc: "Show info",
     helpDblClickLabel: "Double-click",
     helpDblClickDesc: "Focus on body",
+    helpLabelClickLabel: "Click label button",
+    helpLabelClickDesc: "Show info card",
+    helpLabelDblClickLabel: "Double-click label",
+    helpLabelDblClickDesc: "Lock tracking (double-click again to exit)",
+    helpLabelSection: "Label Buttons",
     helpFooter:
       "22 celestial bodies · double-click to focus · click anywhere to close",
   },

@@ -17,6 +17,7 @@ import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
 import { createStarField } from "./starfield.js";
 import { createSkybox } from "./skybox.js";
+import { createNebulaSprites } from "./nebula.js";
 import { createAsteroidBelt } from "./asteroid-belt.js";
 import { createAnimationLoop } from "./loop.js";
 import {
@@ -80,6 +81,10 @@ try {
   skybox.visible = false;
   scene.add(skybox);
 
+  // ---- 3c. 3D 星云精灵（始终可见）----
+  const nebulaSprites = createNebulaSprites();
+  scene.add(nebulaSprites);
+
   // ---- 4. 天体模型 ----
   const bodyRefs = createCelestialBodies(scene);
 
@@ -132,6 +137,7 @@ try {
   function onLightToggle(isOn) {
     toggleFillLight(lights, isOn);
     skybox.visible = isOn;
+    nebulaSprites.visible = isOn;
   }
 
   // ---- 10. UI ----

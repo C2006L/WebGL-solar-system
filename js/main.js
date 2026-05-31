@@ -17,7 +17,7 @@ import { createCelestialBodies } from "./celestial-bodies.js";
 import { createAllOrbits } from "./orbits.js";
 import { createStarField } from "./starfield.js";
 import { createSkybox } from "./skybox.js";
-import { createNebulaSprites } from "./nebula.js";
+import { createNebulaSystem } from "./nebulae.js";
 import { createAsteroidBelt } from "./asteroid-belt.js";
 import { createAnimationLoop } from "./loop.js";
 import {
@@ -40,7 +40,7 @@ import { t } from "./i18n.js";
 try {
   // ---- 1. Three.js 核心对象 ----
   const scene = new THREE.Scene();
-  scene.background = new THREE.Color(0x000005);
+  scene.background = new THREE.Color(0x000000);
 
   const renderer = new THREE.WebGLRenderer({
     antialias: true,
@@ -81,9 +81,13 @@ try {
   skybox.visible = false;
   scene.add(skybox);
 
-  // ---- 3c. 3D 星云精灵（始终可见）----
-  const nebulaSprites = createNebulaSprites();
-  scene.add(nebulaSprites);
+  // ---- 3c. 真实星云系统（由银河按钮控制）----
+  const nebulaSystem = createNebulaSystem(scene);
+  scene.add(nebulaSystem.group);
+  nebulaSystem.group.visible = false;
+
+  // 给 scene 挂 renderer 引用，供星云视锥检测使用
+  scene.userData.renderer = renderer;
 
   // ---- 4. 天体模型 ----
   const bodyRefs = createCelestialBodies(scene);
@@ -137,7 +141,7 @@ try {
   function onLightToggle(isOn) {
     toggleFillLight(lights, isOn);
     skybox.visible = isOn;
-    nebulaSprites.visible = isOn;
+    nebulaSystem.group.visible = isOn;
   }
 
   // ---- 10. UI ----
@@ -176,6 +180,7 @@ try {
     clock,
     toggleHelp,
     switchToPreset: applyPreset,
+    updateNebulaHover: nebulaSystem.updateHover,
   };
   const loop = createAnimationLoop(ctx);
 

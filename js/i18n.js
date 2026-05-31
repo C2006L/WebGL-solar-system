@@ -84,6 +84,9 @@ const STRINGS = {
     helpLabelDblClickDesc: "锁定跟踪天体（再次双击退出）",
     helpLabelSection: "标签按钮",
     helpFooter: "22个天体 · 双击聚焦 · 点击空白处关闭面板",
+    nebulaDistance: "距离",
+    nebulaUnitLy: "光年",
+    nebulaType: "类型",
   },
 
   en: {
@@ -166,6 +169,9 @@ const STRINGS = {
     helpLabelSection: "Label Buttons",
     helpFooter:
       "22 celestial bodies · double-click to focus · click anywhere to close",
+    nebulaDistance: "Distance",
+    nebulaUnitLy: "ly",
+    nebulaType: "Type",
   },
 };
 

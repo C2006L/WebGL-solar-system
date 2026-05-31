@@ -14,7 +14,7 @@ body {
   font-family:
     "Rajdhani", "Orbitron", "Segoe UI", "Microsoft YaHei", "PingFang SC",
     sans-serif;
-  background: #000005;
+  background: #000000;
   cursor: crosshair;
 }
 
@@ -471,7 +471,11 @@ canvas {
 }
 
 .body-label.force-follow-active {
-  background: linear-gradient(135deg, rgba(200, 150, 20, 0.35), rgba(180, 130, 10, 0.4));
+  background: linear-gradient(
+    135deg,
+    rgba(200, 150, 20, 0.35),
+    rgba(180, 130, 10, 0.4)
+  );
   border-color: rgba(230, 190, 50, 0.6);
   box-shadow: 0 0 12px rgba(230, 190, 50, 0.25);
 }

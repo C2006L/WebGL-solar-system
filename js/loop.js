@@ -51,6 +51,7 @@ export function createAnimationLoop(ctx) {
     orbitLines,
     asteroidBelt,
     switchToPreset,
+    updateNebulaHover,
   } = ctx;
 
   let speedMultiplier = SIM.BASE_SPEED;
@@ -189,6 +190,8 @@ export function createAnimationLoop(ctx) {
     }
 
     updateFocusAnimation(camera, controls, delta);
+
+    if (updateNebulaHover) updateNebulaHover(camera);
 
     controls.update();
     renderer.render(scene, camera);
